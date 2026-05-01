@@ -1,0 +1,113 @@
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+const revealItems = document.querySelectorAll('.reveal');
+const root = document.documentElement;
+root.dataset.theme = 'dark';
+window.localStorage.removeItem('theme-preference');
+
+if (prefersReducedMotion.matches || !('IntersectionObserver' in window)) {
+    revealItems.forEach((item) => item.classList.add('reveal-visible'));
+} else {
+    const observer = new IntersectionObserver(
+        (entries) => {
+            entries.forEach((entry) => {
+                if (!entry.isIntersecting) {
+                    return;
+                }
+
+                entry.target.classList.add('reveal-visible');
+                observer.unobserve(entry.target);
+            });
+        },
+        {
+            threshold: 0.18,
+            rootMargin: '0px 0px -8% 0px',
+        },
+    );
+
+revealItems.forEach((item) => observer.observe(item));
+}
+
+const lessonItems = document.querySelectorAll('[data-lesson]');
+const activeLessonKicker = document.getElementById('lms-active-lesson-kicker');
+const activeLessonTitle = document.getElementById('lms-active-lesson-title');
+const activeLessonDescription = document.getElementById('lms-active-lesson-description');
+const activeLessonDuration = document.getElementById('lms-active-lesson-duration');
+const activeModuleLabel = document.getElementById('lms-active-module-label');
+const activeVideoTitle = document.getElementById('lms-active-video-title');
+const videoPoster = document.getElementById('lms-video-poster');
+
+const activateLesson = (lesson) => {
+    lessonItems.forEach((item) => {
+        const trigger = item.querySelector('.lms-lesson-trigger');
+        const panel = item.querySelector('.lms-lesson-panel');
+        const isActive = item === lesson;
+
+        item.classList.toggle('is-current', isActive);
+        trigger?.setAttribute('aria-expanded', String(isActive));
+        panel?.classList.toggle('is-open', isActive);
+    });
+
+    if (!activeLessonKicker || !activeLessonTitle || !activeLessonDescription || !activeLessonDuration || !activeModuleLabel || !activeVideoTitle || !videoPoster) {
+        return;
+    }
+
+    activeLessonKicker.textContent = lesson.dataset.kicker || '';
+    activeLessonTitle.textContent = lesson.dataset.title || '';
+    activeLessonDescription.textContent = lesson.dataset.description || '';
+    activeLessonDuration.textContent = lesson.dataset.duration || '';
+    activeModuleLabel.textContent = lesson.dataset.module || '';
+    activeVideoTitle.textContent = lesson.dataset.videoTitle || '';
+
+    if (lesson.dataset.image) {
+        videoPoster.style.background = `
+            linear-gradient(160deg, rgba(121, 73, 255, 0.28), rgba(7, 21, 34, 0.42) 36%, rgba(255, 93, 177, 0.18) 100%),
+            radial-gradient(circle at 18% 24%, rgba(217, 193, 255, 0.2), transparent 22%),
+            url('${lesson.dataset.image}') center/cover no-repeat
+        `;
+    }
+};
+
+lessonItems.forEach((lesson) => {
+    lesson.querySelector('.lms-lesson-trigger')?.addEventListener('click', () => {
+        activateLesson(lesson);
+    });
+});
+
+const countdownRoot = document.getElementById('pricing-countdown');
+
+if (countdownRoot) {
+    const hoursEl = countdownRoot.querySelector('[data-countdown="hours"]');
+    const minutesEl = countdownRoot.querySelector('[data-countdown="minutes"]');
+    const secondsEl = countdownRoot.querySelector('[data-countdown="seconds"]');
+    const storageKey = 'vibe-coding-launch-offer-expires-at';
+    const countdownDuration = 18 * 60 * 60 * 1000;
+
+    const formatUnit = (value) => String(value).padStart(2, '0');
+
+    let expiresAt = Number.parseInt(window.localStorage.getItem(storageKey) || '', 10);
+
+    if (!Number.isFinite(expiresAt) || expiresAt <= Date.now()) {
+        expiresAt = Date.now() + countdownDuration;
+        window.localStorage.setItem(storageKey, String(expiresAt));
+    }
+
+    const renderCountdown = () => {
+        const remaining = Math.max(0, expiresAt - Date.now());
+        const totalSeconds = Math.floor(remaining / 1000);
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+
+        if (hoursEl) hoursEl.textContent = formatUnit(hours);
+        if (minutesEl) minutesEl.textContent = formatUnit(minutes);
+        if (secondsEl) secondsEl.textContent = formatUnit(seconds);
+
+        if (remaining === 0) {
+            expiresAt = Date.now() + countdownDuration;
+            window.localStorage.setItem(storageKey, String(expiresAt));
+        }
+    };
+
+    renderCountdown();
+    window.setInterval(renderCountdown, 1000);
+}
