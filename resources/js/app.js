@@ -74,6 +74,7 @@ lessonItems.forEach((lesson) => {
 });
 
 const countdownRoot = document.getElementById('pricing-countdown');
+const passwordToggles = document.querySelectorAll('[data-password-toggle]');
 
 if (countdownRoot) {
     const hoursEl = countdownRoot.querySelector('[data-countdown="hours"]');
@@ -111,3 +112,24 @@ if (countdownRoot) {
     renderCountdown();
     window.setInterval(renderCountdown, 1000);
 }
+
+passwordToggles.forEach((toggle) => {
+    toggle.addEventListener('click', () => {
+        const field = toggle.closest('.checkout-password-wrap');
+        const input = field?.querySelector('[data-password-input]');
+        const label = toggle.querySelector('[data-password-toggle-label]');
+
+        if (!(input instanceof HTMLInputElement)) {
+            return;
+        }
+
+        const shouldShow = input.type === 'password';
+        input.type = shouldShow ? 'text' : 'password';
+        toggle.setAttribute('aria-pressed', shouldShow ? 'true' : 'false');
+        toggle.setAttribute('aria-label', shouldShow ? 'Hide password' : 'Show password');
+
+        if (label) {
+            label.textContent = shouldShow ? 'Hide' : 'Show';
+        }
+    });
+});

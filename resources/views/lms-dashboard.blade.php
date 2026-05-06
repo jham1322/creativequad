@@ -22,6 +22,9 @@
                             <div>
                                 <p class="text-xs font-medium uppercase tracking-[0.22em] text-primary">Student Area</p>
                                 <h1 class="mt-1 text-xl font-semibold text-foreground">Vibe Coding LMS</h1>
+                                @isset($studentName)
+                                    <p class="mt-2 text-sm text-muted-foreground">Logged in as {{ $studentName }}</p>
+                                @endisset
                             </div>
                         </div>
 
@@ -30,6 +33,12 @@
                             <a href="#curriculum" class="lms-nav-link">Curriculum</a>
                             <a href="#resources" class="lms-nav-link">Resources</a>
                             <a href="{{ url('/') }}" class="lms-nav-link">Back to landing</a>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="lms-nav-link w-full text-left">
+                                    Log out
+                                </button>
+                            </form>
                         </nav>
                     </div>
                 </aside>
@@ -39,10 +48,14 @@
                         <div>
                             <p class="text-sm font-medium uppercase tracking-[0.24em] text-primary">Welcome back</p>
                             <h2 class="display-title mt-3 text-balance text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
-                                Your course dashboard is ready
+                                {{ $hasPaidAccess ? 'Your course dashboard is ready' : 'Your dashboard is ready, but payment is still pending' }}
                             </h2>
                             <p class="mt-4 max-w-3xl text-base leading-8 text-muted-foreground">
-                                Start learning right away. Your videos, lesson flow, and resources are all in one place so you can move from prompts to a real web app without getting lost.
+                                @if ($hasPaidAccess)
+                                    Start learning right away. Your videos, lesson flow, and resources are all in one place so you can move from prompts to a real web app without getting lost.
+                                @else
+                                    Your account is already created. To unlock the videos and course modules, complete your payment using the same checkout you started earlier.
+                                @endif
                             </p>
                         </div>
 
@@ -57,7 +70,43 @@
                                 </div>
                             </div>
                         @endif
+
+                        @unless ($hasPaidAccess)
+                            <div class="lms-pending-banner">
+                                <div>
+                                    <p class="font-semibold text-foreground">Payment still needed to unlock the course</p>
+                                    <p class="mt-1 text-sm leading-6 text-muted-foreground">
+                                        Please complete your pending payment to unlock all lessons, videos, and resources in your dashboard.
+                                    </p>
+                                </div>
+                                @if ($pendingOrder?->invoice_url)
+                                    <a href="{{ $pendingOrder->invoice_url }}" class="lms-pending-button">
+                                        Continue payment
+                                    </a>
+                                @endif
+                            </div>
+                        @endunless
                     </header>
+
+                    <section class="lms-summary-grid">
+                        <article class="lms-summary-card">
+                            <p class="lms-summary-label">Course access</p>
+                            <h3 class="lms-summary-value">{{ $hasPaidAccess ? 'Unlocked' : 'Pending payment' }}</h3>
+                            <p class="lms-summary-copy">
+                                {{ $hasPaidAccess ? 'Your purchased account is active and ready to continue.' : 'Your account is active, but the lessons stay locked until payment is completed.' }}
+                            </p>
+                        </article>
+                        <article class="lms-summary-card">
+                            <p class="lms-summary-label">Build track</p>
+                            <h3 class="lms-summary-value">E-commerce App</h3>
+                            <p class="lms-summary-copy">From prompts and UI design to deployment on your own server.</p>
+                        </article>
+                        <article class="lms-summary-card">
+                            <p class="lms-summary-label">Workflow</p>
+                            <h3 class="lms-summary-value">Codex → GitHub → Server</h3>
+                            <p class="lms-summary-copy">A practical path so you can update the live app anytime.</p>
+                        </article>
+                    </section>
 
                     <section class="lms-section" id="curriculum">
                         <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
@@ -65,143 +114,52 @@
                                 <p class="text-xs font-medium uppercase tracking-[0.22em] text-primary">Curriculum</p>
                                 <h3 class="mt-2 text-3xl font-semibold tracking-tight text-foreground">Watch the course videos</h3>
                             </div>
-                            <p class="max-w-2xl text-sm leading-7 text-muted-foreground">
-                                Each lesson is designed to feel sequential and practical, so students always know what to watch next.
-                            </p>
+                            <div class="lms-curriculum-pill">
+                                {{ $hasPaidAccess ? 'Follow the lessons in order and open each module as you progress.' : 'The lesson list is visible, but full access unlocks only after successful payment.' }}
+                            </div>
                         </div>
 
-                        <div class="mt-8 grid gap-4" id="lms-curriculum-list">
-                            <article
-                                class="lms-lesson-row is-current"
-                                data-lesson
-                                data-kicker="Lesson 01"
-                                data-title="Welcome to Vibe Coding"
-                                data-description="Get oriented with the exact Codex → GitHub → own server workflow, and see how the course removes the usual confusion around building full stack apps."
-                                data-module="Module 1"
-                                data-video-title="Intro, setup, and how this LMS works"
-                                data-duration="12:48"
-                                data-image="{{ asset('images/problem/solution-success.png') }}"
-                            >
-                                <button type="button" class="lms-lesson-trigger" aria-expanded="true">
-                                    <div class="lms-lesson-index">01</div>
-                                    <div class="lms-lesson-content">
-                                        <h4 class="text-xl font-semibold text-foreground">Welcome to the course and what you’ll build</h4>
-                                        <p class="mt-2 text-sm leading-7 text-muted-foreground">
-                                            A quick orientation so students understand the full system they’re about to create and how the course flow works from start to finish.
-                                        </p>
-                                    </div>
-                                    <div class="lms-lesson-meta">
-                                        <span class="lms-lesson-tag">Playing now</span>
-                                        <span class="lms-lesson-time">12:48</span>
-                                        <span class="lms-lesson-chevron">⌄</span>
-                                    </div>
-                                </button>
-                                <div class="lms-lesson-panel is-open">
-                                    <p>
-                                        In this lesson, students get the full overview of how the course works, what they’re going to build, and why the workflow is structured this way.
-                                    </p>
-                                </div>
-                            </article>
+                        <div class="mt-8 grid gap-4 @unless($hasPaidAccess) lms-is-locked @endunless" id="lms-curriculum-list">
+                            @foreach ($lessons as $lesson)
+                                <article
+                                    class="lms-lesson-row {{ $loop->first ? 'is-current' : '' }}"
+                                    data-lesson
+                                >
+                                    <button type="button" class="lms-lesson-trigger" aria-expanded="{{ $loop->first ? 'true' : 'false' }}" @disabled(! $hasPaidAccess)>
+                                        <div class="lms-lesson-index">{{ $lesson->lesson_number }}</div>
+                                        <div class="lms-lesson-content">
+                                            <h4 class="text-xl font-semibold text-foreground">{{ $lesson->title }}</h4>
+                                            <p class="mt-2 text-sm leading-7 text-muted-foreground">
+                                                {{ $lesson->description }}
+                                            </p>
+                                        </div>
+                                        <div class="lms-lesson-meta">
+                                            <span class="{{ $lesson->status_badge_class }}">{{ $lesson->status_label }}</span>
+                                            <span class="lms-lesson-time">{{ $lesson->duration }}</span>
+                                            <span class="lms-lesson-chevron">⌄</span>
+                                        </div>
+                                    </button>
+                                    <div class="lms-lesson-panel {{ $loop->first ? 'is-open' : '' }}">
+                                        <p>{{ $lesson->description }}</p>
 
-                            <article
-                                class="lms-lesson-row"
-                                data-lesson
-                                data-kicker="Lesson 02"
-                                data-title="Set up Codex, GitHub, and your project structure"
-                                data-description="Prepare the exact environment you need so your first build is organized from day one."
-                                data-module="Module 1"
-                                data-video-title="Codex, GitHub, and project setup"
-                                data-duration="18:12"
-                                data-image="{{ asset('images/problem/problem-overwhelm.webp') }}"
-                            >
-                                <button type="button" class="lms-lesson-trigger" aria-expanded="false">
-                                    <div class="lms-lesson-index">02</div>
-                                    <div class="lms-lesson-content">
-                                        <h4 class="text-xl font-semibold text-foreground">Set up Codex, GitHub, and your project structure</h4>
-                                        <p class="mt-2 text-sm leading-7 text-muted-foreground">
-                                            Prepare the exact environment you need so your first build is organized from day one.
-                                        </p>
+                                        @if ($lesson->embed_video_url)
+                                            <div class="video-wrapper">
+                                                <iframe
+                                                    src="{{ $lesson->embed_video_url }}"
+                                                    title="{{ $lesson->title }}"
+                                                    loading="lazy"
+                                                    allow="autoplay"
+                                                    allowfullscreen
+                                                ></iframe>
+                                            </div>
+                                        @endif
                                     </div>
-                                    <div class="lms-lesson-meta">
-                                        <span class="lms-lesson-tag lms-lesson-tag-muted">Up next</span>
-                                        <span class="lms-lesson-time">18:12</span>
-                                        <span class="lms-lesson-chevron">⌄</span>
-                                    </div>
-                                </button>
-                                <div class="lms-lesson-panel">
-                                    <p>
-                                        This lesson walks through the exact setup so students can avoid messy starts and build with a cleaner foundation immediately.
-                                    </p>
-                                </div>
-                            </article>
-
-                            <article
-                                class="lms-lesson-row"
-                                data-lesson
-                                data-kicker="Lesson 03"
-                                data-title="Design your UI using Google Stitch"
-                                data-description="Translate rough ideas into a cleaner interface before turning the design into a real working app."
-                                data-module="Module 2"
-                                data-video-title="UI design before development"
-                                data-duration="21:30"
-                                data-image="{{ asset('images/problem/solution-success.png') }}"
-                            >
-                                <button type="button" class="lms-lesson-trigger" aria-expanded="false">
-                                    <div class="lms-lesson-index">03</div>
-                                    <div class="lms-lesson-content">
-                                        <h4 class="text-xl font-semibold text-foreground">Design your UI using Google Stitch</h4>
-                                        <p class="mt-2 text-sm leading-7 text-muted-foreground">
-                                            Translate rough ideas into a cleaner interface before turning the design into a real working app.
-                                        </p>
-                                    </div>
-                                    <div class="lms-lesson-meta">
-                                        <span class="lms-lesson-tag lms-lesson-tag-muted">Queued</span>
-                                        <span class="lms-lesson-time">21:30</span>
-                                        <span class="lms-lesson-chevron">⌄</span>
-                                    </div>
-                                </button>
-                                <div class="lms-lesson-panel">
-                                    <p>
-                                        Students learn how to shape their screens first, so development feels more intentional and less chaotic once the build starts.
-                                    </p>
-                                </div>
-                            </article>
-
-                            <article
-                                class="lms-lesson-row"
-                                data-lesson
-                                data-kicker="Lesson 04"
-                                data-title="Build the features with AI prompts"
-                                data-description="Learn how to prompt for actual features and outputs instead of just generating disconnected snippets."
-                                data-module="Module 2"
-                                data-video-title="Prompting for real product features"
-                                data-duration="26:05"
-                                data-image="{{ asset('images/problem/solution-success.png') }}"
-                            >
-                                <button type="button" class="lms-lesson-trigger" aria-expanded="false">
-                                    <div class="lms-lesson-index">04</div>
-                                    <div class="lms-lesson-content">
-                                        <h4 class="text-xl font-semibold text-foreground">Build the features with AI prompts</h4>
-                                        <p class="mt-2 text-sm leading-7 text-muted-foreground">
-                                            Learn how to prompt for actual features and outputs instead of just generating disconnected snippets.
-                                        </p>
-                                    </div>
-                                    <div class="lms-lesson-meta">
-                                        <span class="lms-lesson-tag lms-lesson-tag-muted">Queued</span>
-                                        <span class="lms-lesson-time">26:05</span>
-                                        <span class="lms-lesson-chevron">⌄</span>
-                                    </div>
-                                </button>
-                                <div class="lms-lesson-panel">
-                                    <p>
-                                        This lesson focuses on turning prompts into complete feature work instead of random outputs that are hard to integrate.
-                                    </p>
-                                </div>
-                            </article>
+                                </article>
+                            @endforeach
                         </div>
                     </section>
 
-                    <section class="lms-section lms-resource-grid" id="resources">
+                    <section class="lms-section lms-resource-grid @unless($hasPaidAccess) lms-is-locked @endunless" id="resources">
                         <article class="lms-resource-card">
                             <p class="text-xs font-medium uppercase tracking-[0.22em] text-primary">Downloads</p>
                             <h4 class="mt-3 text-2xl font-semibold tracking-tight text-foreground">Resources and references</h4>

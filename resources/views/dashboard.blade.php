@@ -25,6 +25,18 @@
                 </div>
 
                 <div class="relative mx-auto flex w-full max-w-6xl flex-col">
+                    <div class="mb-6 flex w-full justify-end">
+                        @auth
+                            <a href="{{ route('lms.dashboard') }}" class="inline-flex items-center rounded-full border border-border bg-card/45 px-5 py-2.5 text-sm font-semibold text-foreground transition hover:bg-card/70">
+                                Dashboard
+                            </a>
+                        @else
+                            <a href="{{ route('login') }}" class="inline-flex items-center rounded-full border border-border bg-card/45 px-5 py-2.5 text-sm font-semibold text-foreground transition hover:bg-card/70">
+                                Login
+                            </a>
+                        @endauth
+                    </div>
+
                     <div class="relative mx-auto flex max-w-5xl flex-col items-center">
                         <div class="reveal reveal-delay-1 inline-flex items-center gap-2 rounded-full border border-border bg-card/40 px-4 py-1.5 text-xs font-medium tracking-wide text-muted-foreground backdrop-blur-md">
                             <svg class="h-3.5 w-3.5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -783,7 +795,7 @@
                                 Launching price for a limited time
                             </p>
                             <p class="pricing-cta-price text-6xl font-bold leading-none md:text-8xl">
-                                599 pesos
+                                2 pesos
                             </p>
                         </div>
 

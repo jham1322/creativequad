@@ -25,6 +25,15 @@
                         <a href="{{ url('/') }}" class="hidden text-sm font-medium text-foreground/72 transition hover:text-foreground sm:inline-flex">
                             About the course
                         </a>
+                        @auth
+                            <a href="{{ route('lms.dashboard') }}" class="hidden text-sm font-medium text-foreground/72 transition hover:text-foreground sm:inline-flex">
+                                Dashboard
+                            </a>
+                        @else
+                            <a href="{{ route('login') }}" class="hidden text-sm font-medium text-foreground/72 transition hover:text-foreground sm:inline-flex">
+                                Login
+                            </a>
+                        @endauth
                         <a href="{{ url('/') }}" class="inline-flex items-center rounded-full border border-border px-5 py-2.5 text-sm font-semibold text-foreground transition hover:bg-card/70">
                             Back to landing page
                         </a>
@@ -53,7 +62,7 @@
                         <div class="flex items-start gap-3">
                             <span class="checkout-notice-icon mt-0.5">✓</span>
                             <div>
-                                <p class="text-sm font-semibold text-foreground">You’re enrolling in the Tagalog AI web app course.</p>
+                                <p class="text-sm font-semibold text-foreground">You’re enrolling in Learn how to build web apps using AI and Codex.</p>
                                 <p class="mt-1 text-sm leading-6 text-muted-foreground">
                                     Codex to GitHub to your own live server. No closed platform lock-in.
                                 </p>
@@ -92,26 +101,46 @@
                                 <label class="checkout-field">
                                     <span>First name</span>
                                     <input type="text" name="first_name" value="{{ old('first_name') }}" placeholder="Juan">
+                                    @error('first_name')
+                                        <small class="checkout-field-error">{{ $message }}</small>
+                                    @enderror
                                 </label>
                                 <label class="checkout-field">
                                     <span>Last name</span>
                                     <input type="text" name="last_name" value="{{ old('last_name') }}" placeholder="Dela Cruz">
+                                    @error('last_name')
+                                        <small class="checkout-field-error">{{ $message }}</small>
+                                    @enderror
                                 </label>
                             </div>
 
                             <label class="checkout-field">
                                 <span>Email address</span>
-                                <input type="email" name="email" value="{{ old('email') }}" placeholder="you@example.com">
+                                <input type="email" name="email" value="{{ old('email') }}" placeholder="you@example.com" @class(['checkout-input-error' => $errors->has('email')])>
+                                @error('email')
+                                    <small class="checkout-field-error">{{ $message }}</small>
+                                @enderror
                             </label>
 
                             <div class="grid gap-5 sm:grid-cols-2">
                                 <label class="checkout-field">
                                     <span>Account username</span>
-                                    <input type="text" name="username" value="{{ old('username') }}" placeholder="yourusername">
+                                    <input type="text" name="username" value="{{ old('username') }}" placeholder="yourusername" @class(['checkout-input-error' => $errors->has('username')])>
+                                    @error('username')
+                                        <small class="checkout-field-error">{{ $message }}</small>
+                                    @enderror
                                 </label>
                                 <label class="checkout-field">
                                     <span>Create account password</span>
-                                    <input type="password" name="password" placeholder="Password">
+                                    <div class="checkout-password-wrap">
+                                        <input type="password" name="password" placeholder="Password" data-password-input @class(['checkout-input-error' => $errors->has('password')])>
+                                        <button type="button" class="checkout-password-toggle" data-password-toggle aria-label="Show password" aria-pressed="false">
+                                            <span data-password-toggle-label>Show</span>
+                                        </button>
+                                    </div>
+                                    @error('password')
+                                        <small class="checkout-field-error">{{ $message }}</small>
+                                    @enderror
                                 </label>
                             </div>
 
@@ -240,7 +269,7 @@
                                     class="h-16 w-16 rounded-full border border-white/12 object-cover"
                                 >
                                 <div>
-                                    <p class="text-sm font-medium uppercase tracking-[0.18em] text-primary">Why this flow works</p>
+                                    <p class="text-sm font-medium uppercase tracking-[0.18em] text-primary">Why this is one of the best course</p>
                                     <p class="mt-1 text-xl font-semibold text-foreground">You own the outcome</p>
                                 </div>
                             </div>
