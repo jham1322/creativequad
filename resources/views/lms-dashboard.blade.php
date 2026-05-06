@@ -88,26 +88,6 @@
                         @endunless
                     </header>
 
-                    <section class="lms-summary-grid">
-                        <article class="lms-summary-card">
-                            <p class="lms-summary-label">Course access</p>
-                            <h3 class="lms-summary-value">{{ $hasPaidAccess ? 'Unlocked' : 'Pending payment' }}</h3>
-                            <p class="lms-summary-copy">
-                                {{ $hasPaidAccess ? 'Your purchased account is active and ready to continue.' : 'Your account is active, but the lessons stay locked until payment is completed.' }}
-                            </p>
-                        </article>
-                        <article class="lms-summary-card">
-                            <p class="lms-summary-label">Build track</p>
-                            <h3 class="lms-summary-value">E-commerce App</h3>
-                            <p class="lms-summary-copy">From prompts and UI design to deployment on your own server.</p>
-                        </article>
-                        <article class="lms-summary-card">
-                            <p class="lms-summary-label">Workflow</p>
-                            <h3 class="lms-summary-value">Codex → GitHub → Server</h3>
-                            <p class="lms-summary-copy">A practical path so you can update the live app anytime.</p>
-                        </article>
-                    </section>
-
                     <section class="lms-section" id="curriculum">
                         <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                             <div>
