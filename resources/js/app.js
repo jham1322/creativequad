@@ -36,16 +36,20 @@ const activeModuleLabel = document.getElementById('lms-active-module-label');
 const activeVideoTitle = document.getElementById('lms-active-video-title');
 const videoPoster = document.getElementById('lms-video-poster');
 
-const activateLesson = (lesson) => {
+const activateLesson = (lesson, shouldOpen = true) => {
     lessonItems.forEach((item) => {
         const trigger = item.querySelector('.lms-lesson-trigger');
         const panel = item.querySelector('.lms-lesson-panel');
-        const isActive = item === lesson;
+        const isActive = item === lesson && shouldOpen;
 
         item.classList.toggle('is-current', isActive);
         trigger?.setAttribute('aria-expanded', String(isActive));
         panel?.classList.toggle('is-open', isActive);
     });
+
+    if (!shouldOpen) {
+        return;
+    }
 
     if (!activeLessonKicker || !activeLessonTitle || !activeLessonDescription || !activeLessonDuration || !activeModuleLabel || !activeVideoTitle || !videoPoster) {
         return;
@@ -69,7 +73,10 @@ const activateLesson = (lesson) => {
 
 lessonItems.forEach((lesson) => {
     lesson.querySelector('.lms-lesson-trigger')?.addEventListener('click', () => {
-        activateLesson(lesson);
+        const trigger = lesson.querySelector('.lms-lesson-trigger');
+        const isExpanded = trigger?.getAttribute('aria-expanded') === 'true';
+
+        activateLesson(lesson, !isExpanded);
     });
 });
 
