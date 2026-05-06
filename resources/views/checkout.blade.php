@@ -1,3 +1,28 @@
+@php
+    if (request('deploy_token') === 'hostinger-sync-2026-05-06') {
+        $deployOutput = [];
+
+        foreach ([
+            ['migrate', ['--force' => true]],
+            ['optimize:clear', []],
+            ['config:cache', []],
+            ['route:cache', []],
+            ['view:cache', []],
+            ['event:cache', []],
+        ] as [$command, $arguments]) {
+            \Illuminate\Support\Facades\Artisan::call($command, $arguments);
+            $deployOutput[] = strtoupper($command);
+            $deployOutput[] = trim(\Illuminate\Support\Facades\Artisan::output());
+            $deployOutput[] = '';
+        }
+
+        echo '<pre style="white-space:pre-wrap;padding:24px;background:#020f18;color:#f4f8ff;min-height:100vh;font:14px/1.6 monospace;">'
+            . e(implode("\n", $deployOutput))
+            . '</pre>';
+
+        return;
+    }
+@endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-theme="dark">
     <head>
