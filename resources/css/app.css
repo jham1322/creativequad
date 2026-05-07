@@ -3150,6 +3150,7 @@
 }
 
 .video-wrapper-locked.is-playing iframe {
+    pointer-events: auto;
     opacity: 1;
 }
 

@@ -112,7 +112,7 @@ lessonItems.forEach((lesson) => {
         }
 
         const separator = embedSrc.includes('?') ? '&' : '?';
-        frame.src = `${embedSrc}${separator}autoplay=1&controls=0`;
+        frame.src = `${embedSrc}${separator}autoplay=1&controls=1`;
         shell.classList.add('is-playing');
     });
 });

@@ -141,9 +141,8 @@
                                                         title="{{ $lesson->title }}"
                                                         loading="lazy"
                                                         referrerpolicy="strict-origin-when-cross-origin"
-                                                        allow="autoplay; encrypted-media; picture-in-picture"
-                                                        tabindex="-1"
-                                                        aria-hidden="true"
+                                                        allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+                                                        allowfullscreen
                                                         data-video-frame
                                                     ></iframe>
                                                 </div>
