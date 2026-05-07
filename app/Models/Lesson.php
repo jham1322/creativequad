@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
 
 class Lesson extends Model
 {
@@ -32,11 +31,11 @@ class Lesson extends Model
             return null;
         }
 
-        if (preg_match('#(?:youtube\.com/watch\?v=|youtu\.be/)([^?&/]+)#', $this->video_url, $matches) === 1) {
-            return 'https://www.youtube.com/embed/' . $matches[1];
+        if ($youtubeVideoId = $this->extractYoutubeVideoId($this->video_url)) {
+            return $this->buildYoutubeEmbedUrl($youtubeVideoId);
         }
 
-        if (Str::contains($this->video_url, '/preview')) {
+        if (str_contains($this->video_url, '/preview')) {
             return $this->video_url;
         }
 
@@ -45,6 +44,44 @@ class Lesson extends Model
         }
 
         return $this->video_url;
+    }
+
+    private function extractYoutubeVideoId(string $url): ?string
+    {
+        if (preg_match('#youtube(?:-nocookie)?\.com/embed/([^?&/]+)#', $url, $matches) === 1) {
+            return $matches[1];
+        }
+
+        if (preg_match('#youtu\.be/([^?&/]+)#', $url, $matches) === 1) {
+            return $matches[1];
+        }
+
+        $parts = parse_url($url);
+
+        if (! isset($parts['host'])) {
+            return null;
+        }
+
+        if (str_contains($parts['host'], 'youtube.com')) {
+            parse_str($parts['query'] ?? '', $query);
+
+            if (! empty($query['v'])) {
+                return $query['v'];
+            }
+        }
+
+        return null;
+    }
+
+    private function buildYoutubeEmbedUrl(string $videoId): string
+    {
+        return 'https://www.youtube-nocookie.com/embed/' . $videoId . '?' . http_build_query([
+            'rel' => 0,
+            'playsinline' => 1,
+            'iv_load_policy' => 3,
+            'fs' => 0,
+            'disablekb' => 1,
+        ]);
     }
 
     public function getLessonNumberAttribute(): string

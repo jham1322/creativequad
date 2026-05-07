@@ -128,8 +128,8 @@
                                                     src="{{ $lesson->embed_video_url }}"
                                                     title="{{ $lesson->title }}"
                                                     loading="lazy"
-                                                    allow="autoplay"
-                                                    allowfullscreen
+                                                    referrerpolicy="strict-origin-when-cross-origin"
+                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                                                 ></iframe>
                                             </div>
                                         @endif
