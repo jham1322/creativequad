@@ -36,6 +36,18 @@ const activeModuleLabel = document.getElementById('lms-active-module-label');
 const activeVideoTitle = document.getElementById('lms-active-video-title');
 const videoPoster = document.getElementById('lms-video-poster');
 
+const stopLockedVideo = (lesson) => {
+    const shell = lesson.querySelector('[data-video-shell]');
+    const frame = lesson.querySelector('[data-video-frame]');
+
+    if (!shell || !frame) {
+        return;
+    }
+
+    shell.classList.remove('is-playing');
+    frame.removeAttribute('src');
+};
+
 const activateLesson = (lesson, shouldOpen = true) => {
     lessonItems.forEach((item) => {
         const trigger = item.querySelector('.lms-lesson-trigger');
@@ -45,9 +57,14 @@ const activateLesson = (lesson, shouldOpen = true) => {
         item.classList.toggle('is-current', isActive);
         trigger?.setAttribute('aria-expanded', String(isActive));
         panel?.classList.toggle('is-open', isActive);
+
+        if (!isActive) {
+            stopLockedVideo(item);
+        }
     });
 
     if (!shouldOpen) {
+        stopLockedVideo(lesson);
         return;
     }
 
@@ -77,6 +94,26 @@ lessonItems.forEach((lesson) => {
         const isExpanded = trigger?.getAttribute('aria-expanded') === 'true';
 
         activateLesson(lesson, !isExpanded);
+    });
+
+    lesson.querySelector('[data-video-play]')?.addEventListener('click', (event) => {
+        const button = event.currentTarget;
+        const shell = lesson.querySelector('[data-video-shell]');
+        const frame = lesson.querySelector('[data-video-frame]');
+
+        if (!(button instanceof HTMLElement) || !shell || !(frame instanceof HTMLIFrameElement)) {
+            return;
+        }
+
+        const embedSrc = button.dataset.embedSrc;
+
+        if (!embedSrc) {
+            return;
+        }
+
+        const separator = embedSrc.includes('?') ? '&' : '?';
+        frame.src = `${embedSrc}${separator}autoplay=1&controls=0`;
+        shell.classList.add('is-playing');
     });
 });
 

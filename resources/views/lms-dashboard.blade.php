@@ -123,15 +123,41 @@
                                         <p>{{ $lesson->description }}</p>
 
                                         @if ($lesson->embed_video_url)
-                                            <div class="video-wrapper">
-                                                <iframe
-                                                    src="{{ $lesson->embed_video_url }}"
-                                                    title="{{ $lesson->title }}"
-                                                    loading="lazy"
-                                                    referrerpolicy="strict-origin-when-cross-origin"
-                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                                                ></iframe>
-                                            </div>
+                                            @if (str_contains($lesson->embed_video_url, 'youtube'))
+                                                <div class="video-wrapper video-wrapper-locked" data-video-shell>
+                                                    <div class="video-placeholder" data-video-placeholder>
+                                                        <button
+                                                            type="button"
+                                                            class="video-play-trigger"
+                                                            data-video-play
+                                                            data-embed-src="{{ $lesson->embed_video_url }}"
+                                                            data-video-title="{{ $lesson->title }}"
+                                                        >
+                                                            <span class="video-play-icon" aria-hidden="true">▶</span>
+                                                            <span>Play lesson video</span>
+                                                        </button>
+                                                    </div>
+                                                    <iframe
+                                                        title="{{ $lesson->title }}"
+                                                        loading="lazy"
+                                                        referrerpolicy="strict-origin-when-cross-origin"
+                                                        allow="autoplay; encrypted-media; picture-in-picture"
+                                                        tabindex="-1"
+                                                        aria-hidden="true"
+                                                        data-video-frame
+                                                    ></iframe>
+                                                </div>
+                                            @else
+                                                <div class="video-wrapper">
+                                                    <iframe
+                                                        src="{{ $lesson->embed_video_url }}"
+                                                        title="{{ $lesson->title }}"
+                                                        loading="lazy"
+                                                        referrerpolicy="strict-origin-when-cross-origin"
+                                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                                    ></iframe>
+                                                </div>
+                                            @endif
                                         @endif
                                     </div>
                                 </article>
