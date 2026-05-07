@@ -32,6 +32,10 @@ class Lesson extends Model
             return null;
         }
 
+        if (preg_match('#(?:youtube\.com/watch\?v=|youtu\.be/)([^?&/]+)#', $this->video_url, $matches) === 1) {
+            return 'https://www.youtube.com/embed/' . $matches[1];
+        }
+
         if (Str::contains($this->video_url, '/preview')) {
             return $this->video_url;
         }
