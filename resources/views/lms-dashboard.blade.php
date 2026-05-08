@@ -163,6 +163,105 @@
                         </div>
                     </section>
 
+                    <section class="lms-hosting-offer reveal reveal-delay-2" id="hosting-offer">
+                        <div class="lms-hosting-orb lms-hosting-orb-a" aria-hidden="true"></div>
+                        <div class="lms-hosting-orb lms-hosting-orb-b" aria-hidden="true"></div>
+                        <div class="lms-hosting-grid">
+                            <div class="lms-hosting-copy">
+                                <div class="lms-hosting-badges" aria-label="Hosting offer badges">
+                                    <span class="lms-hosting-badge">Student Exclusive</span>
+                                    <span class="lms-hosting-badge lms-hosting-badge-off">75% OFF</span>
+                                    <span class="lms-hosting-badge">FREE Domain</span>
+                                    <span class="lms-hosting-badge">Recommended</span>
+                                </div>
+
+                                <p class="lms-hosting-kicker">Exclusive Student Hosting Offer</p>
+                                <h3 class="lms-hosting-title">
+                                    Launch your projects online with
+                                    <span>DreamHost</span>
+                                </h3>
+                                <p class="lms-hosting-body">
+                                    After building your Laravel apps, AI tools, and portfolio projects inside the course, you’ll need hosting to deploy them online. DreamHost is beginner-friendly and perfect for launching real-world projects.
+                                </p>
+
+                                <div class="lms-hosting-price-row">
+                                    <div class="lms-hosting-price-card">
+                                        <span class="lms-hosting-price-label">Limited student pricing</span>
+                                        <strong>Only around ₱2,000/year</strong>
+                                    </div>
+                                    <div class="lms-hosting-price-card">
+                                        <span class="lms-hosting-price-label">Built for this course</span>
+                                        <strong>Recommended for Vibe Coding Students</strong>
+                                    </div>
+                                </div>
+
+                                <ul class="lms-hosting-features">
+                                    <li>Deploy Laravel projects</li>
+                                    <li>Host portfolio websites</li>
+                                    <li>Launch AI web apps</li>
+                                    <li>WordPress ready</li>
+                                    <li>Beginner friendly</li>
+                                    <li>Fast setup</li>
+                                </ul>
+
+                                <div class="lms-hosting-actions">
+                                    <a
+                                        href="https://click.dreamhost.com/aff_c?offer_id=8&aff_id=18335&url_id=145"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        class="lms-hosting-cta"
+                                    >
+                                        <span>Claim Student Discount</span>
+                                        <span class="lms-hosting-cta-icon" aria-hidden="true">→</span>
+                                    </a>
+                                    <p class="lms-hosting-note">FREE Domain Included</p>
+                                </div>
+                            </div>
+
+                            <div class="lms-hosting-visual" aria-hidden="true">
+                                <div class="lms-hosting-particles">
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                </div>
+                                <div class="lms-hosting-cloud">
+                                    <span class="lms-hosting-cloud-dot"></span>
+                                    <span class="lms-hosting-cloud-text">DreamHost cloud</span>
+                                </div>
+                                <div class="lms-hosting-server-stack">
+                                    <div class="lms-hosting-server">
+                                        <span></span>
+                                        <span></span>
+                                        <span></span>
+                                    </div>
+                                    <div class="lms-hosting-server">
+                                        <span></span>
+                                        <span></span>
+                                        <span></span>
+                                    </div>
+                                    <div class="lms-hosting-server">
+                                        <span></span>
+                                        <span></span>
+                                        <span></span>
+                                    </div>
+                                </div>
+                                <div class="lms-hosting-signal lms-hosting-signal-a"></div>
+                                <div class="lms-hosting-signal lms-hosting-signal-b"></div>
+                                <div class="lms-hosting-terminal">
+                                    <div class="lms-hosting-terminal-bar">
+                                        <span></span>
+                                        <span></span>
+                                        <span></span>
+                                    </div>
+                                    <div class="lms-hosting-terminal-line"></div>
+                                    <div class="lms-hosting-terminal-line short"></div>
+                                    <div class="lms-hosting-terminal-line"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
                     <section class="lms-section lms-resource-grid @unless($hasPaidAccess) lms-is-locked @endunless" id="resources">
                         <article class="lms-resource-card lms-project-card">
                             <p class="text-xs font-medium uppercase tracking-[0.22em] text-primary">Project File</p>
