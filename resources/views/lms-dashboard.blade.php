@@ -21,9 +21,8 @@
                             <img src="{{ asset('images/branding/logo.webp') }}" alt="Creative Quad" class="lms-brand-mark">
                             <div>
                                 <p class="text-xs font-medium uppercase tracking-[0.22em] text-primary">Student Area</p>
-                                <h1 class="mt-1 text-xl font-semibold text-foreground">Creative Quad LMS</h1>
                                 @isset($studentName)
-                                    <p class="mt-2 text-sm text-muted-foreground">Logged in as {{ $studentName }}</p>
+                                    <p class="mt-1 text-sm text-muted-foreground">Logged in as {{ $studentName }}</p>
                                 @endisset
                             </div>
                         </div>
@@ -165,14 +164,20 @@
                     </section>
 
                     <section class="lms-section lms-resource-grid @unless($hasPaidAccess) lms-is-locked @endunless" id="resources">
-                        <article class="lms-resource-card">
-                            <p class="text-xs font-medium uppercase tracking-[0.22em] text-primary">Downloads</p>
-                            <h4 class="mt-3 text-2xl font-semibold tracking-tight text-foreground">Resources and references</h4>
-                            <ul class="mt-5 space-y-3 text-sm leading-7 text-muted-foreground">
-                                <li>Prompt templates for feature building</li>
-                                <li>Starter project structure guide</li>
-                                <li>Deployment checklist for your live server</li>
-                            </ul>
+                        <article class="lms-resource-card lms-project-card">
+                            <p class="text-xs font-medium uppercase tracking-[0.22em] text-primary">Project File</p>
+                            <h4 class="mt-3 text-2xl font-semibold tracking-tight text-foreground">Featured Stitch project reference</h4>
+                            <p class="mt-5 text-sm leading-7 text-muted-foreground">
+                                Open the shared Stitch project reference for this course and use it as a visual guide while building your own version inside the LMS flow.
+                            </p>
+                            <a
+                                href="https://stitch.withgoogle.com/projects/6321885894347484253"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="lms-project-link"
+                            >
+                                Open Stitch project →
+                            </a>
                         </article>
 
                         <article class="lms-resource-card">

@@ -62,7 +62,7 @@
 
                         <div class="reveal reveal-delay-3 mt-10 flex flex-col items-center gap-4 sm:flex-row">
                             <a
-                                href="{{ route('checkout') }}"
+                                href="{{ auth()->check() ? route('lms.dashboard') : route('checkout') }}"
                                 class="hero-enroll-button group relative inline-flex min-w-[220px] items-center justify-center gap-2 overflow-hidden rounded-full px-8 py-4 text-sm font-semibold text-white transition-all hover:scale-[1.02]"
                                 style="background: linear-gradient(115deg, #5c36ff 0%, #a855f7 38%, #ff5db1 68%, #6f59ff 100%); background-size: 220% 220%; box-shadow: 0 22px 52px -20px rgba(117, 55, 255, 0.88), 0 0 36px rgba(168, 85, 247, 0.22), 0 0 0 1px rgba(255, 255, 255, 0.08) inset;"
                             >
@@ -337,7 +337,7 @@
 
                         <div class="mt-8 flex flex-col gap-3 sm:flex-row">
                             <a
-                                href="{{ route('checkout') }}"
+                                href="{{ auth()->check() ? route('lms.dashboard') : route('checkout') }}"
                                 class="group relative inline-flex items-center justify-center gap-3 overflow-hidden rounded-full bg-primary px-8 py-4 text-sm font-semibold text-primary-foreground transition-all hover:scale-[1.02]"
                                 style="box-shadow: var(--shadow-elegant)"
                             >
