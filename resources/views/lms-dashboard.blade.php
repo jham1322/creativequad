@@ -226,9 +226,9 @@
                                     <span></span>
                                     <span></span>
                                 </div>
-                                <div class="lms-hosting-cloud">
-                                    <span class="lms-hosting-cloud-dot"></span>
-                                    <span class="lms-hosting-cloud-text">DreamHost cloud</span>
+                                <div class="lms-hosting-server-label">
+                                    <span class="lms-hosting-server-label-dot"></span>
+                                    <span class="lms-hosting-server-label-text">DreamHost web hosting server</span>
                                 </div>
                                 <div class="lms-hosting-server-stack">
                                     <div class="lms-hosting-server">
