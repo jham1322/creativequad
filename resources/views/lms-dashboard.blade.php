@@ -18,10 +18,10 @@
                 <aside class="lms-sidebar">
                     <div>
                         <div class="lms-brand">
-                            <span class="lms-brand-mark"></span>
+                            <img src="{{ asset('images/branding/logo.webp') }}" alt="Creative Quad" class="lms-brand-mark">
                             <div>
                                 <p class="text-xs font-medium uppercase tracking-[0.22em] text-primary">Student Area</p>
-                                <h1 class="mt-1 text-xl font-semibold text-foreground">Vibe Coding LMS</h1>
+                                <h1 class="mt-1 text-xl font-semibold text-foreground">Creative Quad LMS</h1>
                                 @isset($studentName)
                                     <p class="mt-2 text-sm text-muted-foreground">Logged in as {{ $studentName }}</p>
                                 @endisset

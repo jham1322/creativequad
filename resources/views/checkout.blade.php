@@ -42,8 +42,8 @@
             <header class="checkout-topbar relative z-10 border-b border-white/8">
                 <div class="mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-5">
                     <a href="{{ url('/') }}" class="inline-flex items-center gap-3 text-sm font-medium text-foreground/84 transition hover:text-foreground">
-                        <span class="checkout-logo-mark"></span>
-                        <span class="tracking-[0.28em] uppercase">Vibe Coding</span>
+                        <img src="{{ asset('images/branding/logo.webp') }}" alt="Creative Quad" class="checkout-logo-mark">
+                        <span class="tracking-[0.18em] uppercase">Creative Quad</span>
                     </a>
 
                     <div class="flex items-center gap-3">

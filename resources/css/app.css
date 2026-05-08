@@ -2389,11 +2389,10 @@
 }
 
 .checkout-logo-mark {
-    height: 0.8rem;
-    width: 0.8rem;
-    border-radius: 999px;
-    background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
-    box-shadow: 0 0 0 6px rgba(168, 85, 247, 0.12);
+    display: block;
+    height: 2.25rem;
+    width: auto;
+    object-fit: contain;
 }
 
 .checkout-hero-aura {
@@ -2772,11 +2771,10 @@
 }
 
 .lms-brand-mark {
-    height: 2.1rem;
-    width: 2.1rem;
-    border-radius: 1rem;
-    background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
-    box-shadow: 0 20px 40px -26px rgba(168, 85, 247, 0.8);
+    display: block;
+    height: 2.7rem;
+    width: auto;
+    object-fit: contain;
 }
 
 .lms-nav-link {
