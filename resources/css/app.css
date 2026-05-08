@@ -3396,16 +3396,12 @@
 
 .lms-hosting-title {
     margin-top: 0.85rem;
-    max-width: 13ch;
-    font-size: clamp(1.8rem, 2.85vw, 2.85rem);
+    max-width: 11ch;
+    font-size: clamp(2rem, 3.25vw, 3.25rem);
     font-weight: 700;
     line-height: 1.02;
     letter-spacing: -0.04em;
     color: var(--color-foreground);
-}
-
-.lms-hosting-title-line {
-    display: block;
 }
 
 .lms-hosting-title span {
@@ -3612,7 +3608,7 @@
     animation: lms-hosting-float 12s ease-in-out infinite reverse;
 }
 
-.lms-hosting-server-label {
+.lms-hosting-cloud {
     position: absolute;
     left: 11%;
     top: 12%;
@@ -3628,7 +3624,7 @@
     animation: lms-hosting-float 6.4s ease-in-out infinite;
 }
 
-.lms-hosting-server-label-dot {
+.lms-hosting-cloud-dot {
     height: 0.65rem;
     width: 0.65rem;
     border-radius: 999px;
@@ -3636,7 +3632,7 @@
     box-shadow: 0 0 0 6px rgba(168, 85, 247, 0.08);
 }
 
-.lms-hosting-server-label-text {
+.lms-hosting-cloud-text {
     font-size: 0.8rem;
     font-weight: 700;
     letter-spacing: 0.08em;
@@ -3959,7 +3955,7 @@
 
     .lms-hosting-title {
         max-width: none;
-        font-size: 1.72rem;
+        font-size: 1.9rem;
     }
 
     .lms-hosting-price-row,
@@ -3980,7 +3976,7 @@
         min-height: 19rem;
     }
 
-    .lms-hosting-server-label {
+    .lms-hosting-cloud {
         left: 8%;
         top: 9%;
     }

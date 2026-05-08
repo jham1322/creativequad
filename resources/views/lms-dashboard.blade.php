@@ -177,8 +177,8 @@
 
                                 <p class="lms-hosting-kicker">Exclusive Student Hosting Offer</p>
                                 <h3 class="lms-hosting-title">
-                                    <span class="lms-hosting-title-line">Launch your projects</span>
-                                    <span>online with DreamHost</span>
+                                    Launch your projects online with
+                                    <span>DreamHost</span>
                                 </h3>
                                 <p class="lms-hosting-body">
                                     After building your Laravel apps and portfolio projects inside the course, you’ll need hosting to deploy them online. DreamHost is beginner-friendly and perfect for launching real-world projects.
@@ -226,9 +226,9 @@
                                     <span></span>
                                     <span></span>
                                 </div>
-                                <div class="lms-hosting-server-label">
-                                    <span class="lms-hosting-server-label-dot"></span>
-                                    <span class="lms-hosting-server-label-text">DreamHost web hosting server</span>
+                                <div class="lms-hosting-cloud">
+                                    <span class="lms-hosting-cloud-dot"></span>
+                                    <span class="lms-hosting-cloud-text">DreamHost cloud</span>
                                 </div>
                                 <div class="lms-hosting-server-stack">
                                     <div class="lms-hosting-server">
