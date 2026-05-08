@@ -181,7 +181,7 @@
                                     <span>DreamHost</span>
                                 </h3>
                                 <p class="lms-hosting-body">
-                                    After building your Laravel apps, AI tools, and portfolio projects inside the course, you’ll need hosting to deploy them online. DreamHost is beginner-friendly and perfect for launching real-world projects.
+                                    After building your Laravel apps and portfolio projects inside the course, you’ll need hosting to deploy them online. DreamHost is beginner-friendly and perfect for launching real-world projects.
                                 </p>
 
                                 <div class="lms-hosting-price-row">
@@ -192,6 +192,7 @@
                                     <div class="lms-hosting-price-card">
                                         <span class="lms-hosting-price-label">Built for this course</span>
                                         <strong>Recommended for Vibe Coding Students</strong>
+                                        <small class="lms-hosting-price-note">Build and host as much as 30 web applications on one plan.</small>
                                     </div>
                                 </div>
 
