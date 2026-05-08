@@ -3396,12 +3396,16 @@
 
 .lms-hosting-title {
     margin-top: 0.85rem;
-    max-width: 11ch;
-    font-size: clamp(2rem, 3.25vw, 3.25rem);
+    max-width: 13ch;
+    font-size: clamp(1.8rem, 2.85vw, 2.85rem);
     font-weight: 700;
     line-height: 1.02;
     letter-spacing: -0.04em;
     color: var(--color-foreground);
+}
+
+.lms-hosting-title-line {
+    display: block;
 }
 
 .lms-hosting-title span {
@@ -3955,7 +3959,7 @@
 
     .lms-hosting-title {
         max-width: none;
-        font-size: 1.9rem;
+        font-size: 1.72rem;
     }
 
     .lms-hosting-price-row,
