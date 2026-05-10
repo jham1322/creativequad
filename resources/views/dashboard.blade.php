@@ -79,65 +79,21 @@
                             </a>
                         </div>
 
-                        <div class="mt-18 grid w-full grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                    <article class="hero-mini-card reveal reveal-delay-1 group relative flex flex-col items-start gap-4 rounded-[1.35rem] border border-border bg-card/60 p-6 text-left backdrop-blur-sm transition-colors duration-300 hover:bg-card">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-background/60">
-                            <svg class="h-5 w-5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-                                <path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z" />
-                                <circle cx="13.5" cy="6.5" r=".5" fill="currentColor" />
-                                <circle cx="17.5" cy="10.5" r=".5" fill="currentColor" />
-                                <circle cx="6.5" cy="12.5" r=".5" fill="currentColor" />
-                                <circle cx="8.5" cy="7.5" r=".5" fill="currentColor" />
-                            </svg>
-                        </div>
-                        <div>
-                            <div class="text-xs font-medium text-muted-foreground">01</div>
-                            <div class="mt-1 text-sm font-medium leading-snug text-foreground">Design UI using Google Stitch</div>
-                        </div>
-                    </article>
-
-                    <article class="hero-mini-card reveal reveal-delay-2 group relative flex flex-col items-start gap-4 rounded-[1.35rem] border border-border bg-card/60 p-6 text-left backdrop-blur-sm transition-colors duration-300 hover:bg-card">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-background/60">
-                            <svg class="h-5 w-5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-                                <path d="m18 16 4-4-4-4" />
-                                <path d="m6 8-4 4 4 4" />
-                                <path d="m14.5 4-5 16" />
-                            </svg>
-                        </div>
-                        <div>
-                            <div class="text-xs font-medium text-muted-foreground">02</div>
-                            <div class="mt-1 text-sm font-medium leading-snug text-foreground">Turn designs into real code</div>
-                        </div>
-                    </article>
-
-                    <article class="hero-mini-card reveal reveal-delay-3 group relative flex flex-col items-start gap-4 rounded-[1.35rem] border border-border bg-card/60 p-6 text-left backdrop-blur-sm transition-colors duration-300 hover:bg-card">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-background/60">
-                            <svg class="h-5 w-5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-                                <ellipse cx="12" cy="5" rx="9" ry="3" />
-                                <path d="M3 5V19A9 3 0 0 0 21 19V5" />
-                                <path d="M3 12A9 3 0 0 0 21 12" />
-                            </svg>
-                        </div>
-                        <div>
-                            <div class="text-xs font-medium text-muted-foreground">03</div>
-                            <div class="mt-1 text-sm font-medium leading-snug text-foreground">Connect backend and database</div>
-                        </div>
-                    </article>
-
-                    <article class="hero-mini-card reveal reveal-delay-4 group relative flex flex-col items-start gap-4 rounded-[1.35rem] border border-border bg-card/60 p-6 text-left backdrop-blur-sm transition-colors duration-300 hover:bg-card">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-background/60">
-                            <svg class="h-5 w-5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-                                <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" />
-                                <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09" />
-                                <path d="M9 12a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.4 22.4 0 0 1-4 2z" />
-                                <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 .05 5 .05" />
-                            </svg>
-                        </div>
-                        <div>
-                            <div class="text-xs font-medium text-muted-foreground">04</div>
-                            <div class="mt-1 text-sm font-medium leading-snug text-foreground">Deploy your project as a live website</div>
-                        </div>
-                    </article>
+                        <div class="hero-video-stage reveal reveal-delay-4 mt-18 w-full max-w-6xl">
+                            <div class="hero-video-shell">
+                                <div class="hero-video-orb hero-video-orb-left" aria-hidden="true"></div>
+                                <div class="hero-video-orb hero-video-orb-right" aria-hidden="true"></div>
+                                <div class="hero-video-rim" aria-hidden="true"></div>
+                                <div class="hero-video-frame">
+                                    <iframe
+                                        src="https://player.mediadelivery.net/play/657301/0d1f5560-68ca-4f13-bc23-2929271a84ca"
+                                        title="Creative Quad course preview"
+                                        loading="lazy"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                        allowfullscreen
+                                    ></iframe>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
