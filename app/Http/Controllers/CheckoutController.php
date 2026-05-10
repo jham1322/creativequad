@@ -30,7 +30,7 @@ class CheckoutController extends Controller
         }
 
         return view('checkout', [
-            'coursePrice' => number_format((float) config('services.xendit.course_price', 2), 2),
+            'coursePrice' => number_format((float) config('services.xendit.course_price', 599), 2),
         ]);
     }
 
@@ -63,7 +63,7 @@ class CheckoutController extends Controller
                 ]);
         }
 
-        $price = (float) config('services.xendit.course_price', 2);
+        $price = (float) config('services.xendit.course_price', 599);
         $externalId = 'vibe-course-' . Str::uuid();
         $paymentMethodMap = [
             'gcash' => ['GCASH'],
@@ -370,7 +370,7 @@ class CheckoutController extends Controller
         Mail::to($resolvedEmail)->send(new CoursePaymentConfirmed([
             'name' => (string) ($order['name'] ?? strtok($resolvedEmail, '@') ?: 'Student'),
             'email' => $resolvedEmail,
-            'amount' => number_format((float) ($invoice['paid_amount'] ?? $invoice['amount'] ?? config('services.xendit.course_price', 2)), 2),
+            'amount' => number_format((float) ($invoice['paid_amount'] ?? $invoice['amount'] ?? config('services.xendit.course_price', 599)), 2),
             'reference' => $externalId,
             'payment_method' => (string) ($order['payment_method'] ?? strtoupper((string) ($invoice['payment_method'] ?? 'Xendit'))),
             'course_name' => 'Build Real Full-Stack Web Apps using AI and Codex',

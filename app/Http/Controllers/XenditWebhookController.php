@@ -80,7 +80,7 @@ class XenditWebhookController extends Controller
         Mail::to($email)->send(new CoursePaymentConfirmed([
             'name' => $resolvedName,
             'email' => $email,
-            'amount' => number_format((float) ($payload['paid_amount'] ?? $payload['amount'] ?? config('services.xendit.course_price', 2)), 2),
+            'amount' => number_format((float) ($payload['paid_amount'] ?? $payload['amount'] ?? config('services.xendit.course_price', 599)), 2),
             'reference' => $externalId,
             'payment_method' => (string) ($order['payment_method'] ?? strtoupper((string) ($payload['payment_method'] ?? data_get($payload, 'metadata.payment_method', 'Xendit')))),
             'course_name' => 'Build Real Full-Stack Web Apps using AI and Codex',

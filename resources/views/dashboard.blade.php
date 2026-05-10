@@ -790,12 +790,11 @@
                         </h3>
 
                         <div class="mt-6 flex flex-col items-center gap-4">
-                            <p class="pricing-cta-old text-4xl font-bold text-foreground/70 md:text-6xl">₱1299</p>
                             <p class="pricing-cta-label text-xl font-semibold text-foreground md:text-2xl">
                                 Launching price for a limited time
                             </p>
                             <p class="pricing-cta-price text-6xl font-bold leading-none md:text-8xl">
-                                2 pesos
+                                ₱599
                             </p>
                         </div>
 
