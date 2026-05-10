@@ -29,6 +29,12 @@ class CheckoutController extends Controller
             return $response;
         }
 
+        if (Auth::check()) {
+            return redirect()
+                ->route('lms.dashboard')
+                ->with('pending_payment_notice', 'Please complete your pending payment to unlock your course access.');
+        }
+
         return view('checkout', [
             'coursePrice' => number_format((float) config('services.xendit.course_price', 599), 2),
         ]);
@@ -169,6 +175,9 @@ class CheckoutController extends Controller
             ]);
         }
 
+        Auth::login($user);
+        $request->session()->regenerate();
+
         return redirect()->away($response->json('invoice_url'));
     }
 
@@ -198,6 +207,28 @@ class CheckoutController extends Controller
 
     public function failed(Request $request): RedirectResponse
     {
+        $reference = $request->string('reference')->value();
+
+        if (! Auth::check() && $reference !== '') {
+            $user = User::query()
+                ->where('xendit_reference', $reference)
+                ->orWhereHas('orders', function ($query) use ($reference): void {
+                    $query->where('xendit_reference', $reference);
+                })
+                ->first();
+
+            if ($user instanceof User) {
+                Auth::login($user);
+                $request->session()->regenerate();
+            }
+        }
+
+        if (Auth::check()) {
+            return redirect()
+                ->route('lms.dashboard')
+                ->with('pending_payment_notice', 'Your payment is still pending. Please complete your payment to unlock the full course dashboard.');
+        }
+
         return redirect()
             ->route('checkout')
             ->withInput()

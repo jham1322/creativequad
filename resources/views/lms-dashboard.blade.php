@@ -75,7 +75,7 @@
                                 <div>
                                     <p class="font-semibold text-foreground">Payment still needed to unlock the course</p>
                                     <p class="mt-1 text-sm leading-6 text-muted-foreground">
-                                        Please complete your pending payment to unlock all lessons, videos, and resources in your dashboard.
+                                        {{ session('pending_payment_notice', 'Please complete your pending payment to unlock all lessons, videos, and resources in your dashboard.') }}
                                     </p>
                                 </div>
                                 @if ($pendingOrder?->invoice_url)
