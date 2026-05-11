@@ -15,7 +15,7 @@
             <div class="pointer-events-none absolute inset-0 hero-glow" aria-hidden="true"></div>
             <div class="pointer-events-none absolute inset-0 hero-grid opacity-[0.04]" aria-hidden="true"></div>
 
-            <section class="relative flex min-h-screen w-full flex-col items-center justify-center px-6 py-24 text-center">
+            <section class="hero-overlap-section relative flex min-h-screen w-full flex-col items-center justify-center px-6 py-24 text-center">
                 <div class="pointer-events-none absolute inset-x-0 top-0 bottom-0 overflow-hidden border-y border-white/6 hero-stage opacity-90 lg:border-x-0" aria-hidden="true">
                     <div class="hero-stage-blob hero-stage-blob-one"></div>
                     <div class="hero-stage-blob hero-stage-blob-two"></div>
@@ -120,7 +120,7 @@
                 </div>
             </section>
 
-            <section class="editorial-section relative mx-auto max-w-6xl px-6 pt-14 pb-24 md:pt-20">
+            <section class="editorial-section editorial-overlap-section relative mx-auto max-w-6xl px-6 pt-14 pb-24 md:pt-20">
                 <div class="beginner-stage relative overflow-hidden rounded-[2rem] border border-border px-6 py-12 shadow-[var(--shadow-elegant)] sm:px-8 lg:px-10">
                     <div class="pointer-events-none absolute inset-0 beginner-stage-glow" aria-hidden="true"></div>
                     <div class="pointer-events-none absolute inset-x-[10%] top-0 h-20 beginner-stage-rim" aria-hidden="true"></div>
