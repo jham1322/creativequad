@@ -328,7 +328,8 @@
 }
 
 .hero-overlap-section {
-    padding-bottom: clamp(10rem, 16vw, 16rem);
+    padding-top: clamp(6rem, 9vw, 8.5rem);
+    padding-bottom: clamp(16rem, 23vw, 24rem);
 }
 
 .hero-video-stage {
@@ -336,38 +337,49 @@
     z-index: 1;
     transform: translate3d(0, var(--hero-video-offset, 0px), 0);
     will-change: transform;
-    margin-bottom: clamp(-7rem, -10vw, -11rem);
+    margin-bottom: clamp(-11rem, -15vw, -16rem);
+    isolation: isolate;
+    perspective: 2200px;
 }
 
 .hero-video-shell {
     position: relative;
     overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.09);
-    border-radius: 2rem;
-    padding: clamp(0.85rem, 1.5vw, 1.1rem);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 2.4rem;
+    padding: clamp(0.95rem, 1.45vw, 1.2rem);
     background:
-        linear-gradient(180deg, rgba(10, 20, 33, 0.82), rgba(7, 15, 25, 0.95)),
+        linear-gradient(180deg, rgba(11, 19, 34, 0.74), rgba(7, 14, 24, 0.94)),
         linear-gradient(135deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0)),
-        radial-gradient(circle at top left, rgba(168, 85, 247, 0.14), transparent 36%);
+        radial-gradient(circle at top left, rgba(168, 85, 247, 0.18), transparent 38%),
+        radial-gradient(circle at 80% 24%, rgba(255, 93, 177, 0.12), transparent 32%);
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.08),
-        0 36px 80px -46px rgba(0, 0, 0, 0.86),
+        0 56px 120px -52px rgba(0, 0, 0, 0.88),
+        0 24px 80px -46px rgba(91, 53, 218, 0.3),
         0 0 0 1px rgba(122, 78, 255, 0.08);
-    backdrop-filter: blur(22px);
-    transform: scale(var(--hero-video-scale, 1));
+    backdrop-filter: blur(24px);
+    transform:
+        translate3d(var(--hero-video-parallax-x, 0px), var(--hero-video-parallax-y, 0px), 0)
+        rotateX(var(--hero-video-rotate-x, 0deg))
+        rotateY(var(--hero-video-rotate-y, 0deg))
+        scale(var(--hero-video-scale, 1));
     transform-origin: center center;
     transition:
-        transform 160ms linear,
-        box-shadow 160ms linear,
-        border-radius 160ms linear;
+        transform 180ms linear,
+        box-shadow 180ms linear,
+        border-radius 180ms linear;
     will-change: transform;
+    animation: hero-video-float 8s ease-in-out infinite;
 }
 
 .hero-video-frame {
     position: relative;
     overflow: hidden;
-    border-radius: 1.45rem;
-    background: linear-gradient(180deg, rgba(4, 10, 20, 0.92), rgba(2, 8, 16, 0.98));
+    border-radius: 1.7rem;
+    background:
+        linear-gradient(180deg, rgba(5, 10, 21, 0.92), rgba(3, 8, 17, 0.985)),
+        radial-gradient(circle at 18% 15%, rgba(139, 92, 246, 0.18), transparent 28%);
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.06),
         0 24px 56px -36px rgba(0, 0, 0, 0.92);
@@ -376,7 +388,7 @@
 .hero-video-frame::before {
     content: '';
     display: block;
-    padding-top: min(56.25%, 68vh);
+    padding-top: min(56.25%, 74vh);
 }
 
 .hero-video-frame iframe {
@@ -487,7 +499,7 @@
     position: absolute;
     inset: 0;
     border-radius: inherit;
-    background: linear-gradient(120deg, rgba(92, 54, 255, 0.22), rgba(255, 93, 177, 0.14), rgba(94, 234, 212, 0.1));
+    background: linear-gradient(120deg, rgba(92, 54, 255, 0.28), rgba(255, 93, 177, 0.18), rgba(94, 234, 212, 0.1));
     mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     mask-composite: xor;
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
@@ -523,18 +535,107 @@
     animation-delay: -4s;
 }
 
+.hero-video-orb-center {
+    top: 50%;
+    left: 50%;
+    width: 18rem;
+    height: 18rem;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle, rgba(116, 86, 255, 0.24), rgba(116, 86, 255, 0));
+    opacity: 0.4;
+    animation-delay: -2s;
+}
+
 .hero-video-stage.is-zooming .hero-video-shell {
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.08),
-        0 46px 110px -52px rgba(0, 0, 0, 0.92),
+        0 72px 150px -58px rgba(0, 0, 0, 0.94),
+        0 34px 96px -44px rgba(91, 53, 218, 0.36),
         0 0 0 1px rgba(122, 78, 255, 0.12);
 }
 
 .editorial-overlap-section {
     position: relative;
     z-index: 0;
-    margin-top: clamp(-3rem, -4vw, -5rem);
-    padding-top: clamp(9rem, 12vw, 12rem);
+    margin-top: clamp(-5rem, -6vw, -7rem);
+    padding-top: clamp(12rem, 17vw, 18rem);
+}
+
+.editorial-overlap-section::before {
+    content: '';
+    position: absolute;
+    inset: 0 -4vw auto;
+    height: clamp(16rem, 23vw, 22rem);
+    background:
+        linear-gradient(180deg, rgba(14, 16, 36, 0.9), rgba(8, 13, 26, 0)),
+        radial-gradient(circle at 50% 0%, rgba(132, 84, 255, 0.2), transparent 38%);
+    pointer-events: none;
+    z-index: -1;
+}
+
+.hero-video-shadow,
+.hero-video-backplate,
+.hero-video-ambient {
+    position: absolute;
+    pointer-events: none;
+}
+
+.hero-video-shadow {
+    top: 22%;
+    bottom: 13%;
+    width: 10%;
+    border-radius: 1.8rem;
+    background: linear-gradient(180deg, rgba(9, 15, 28, 0.88), rgba(7, 11, 21, 0.94));
+    opacity: 0.9;
+    filter: blur(0.2px);
+    box-shadow: 0 40px 90px -52px rgba(0, 0, 0, 0.88);
+}
+
+.hero-video-shadow-left {
+    left: 3.5%;
+}
+
+.hero-video-shadow-right {
+    right: 3.5%;
+}
+
+.hero-video-backplate {
+    inset: 15% 10% 8%;
+    border-radius: 2.4rem;
+    background:
+        linear-gradient(180deg, rgba(12, 18, 31, 0.4), rgba(12, 18, 31, 0)),
+        radial-gradient(circle at center, rgba(132, 84, 255, 0.18), transparent 52%);
+    filter: blur(1px);
+    z-index: -1;
+}
+
+.hero-video-ambient {
+    inset: 10% 3% -10%;
+    border-radius: 2.8rem;
+    background:
+        radial-gradient(circle at 18% 12%, rgba(139, 92, 246, 0.14), transparent 26%),
+        radial-gradient(circle at 84% 16%, rgba(255, 93, 177, 0.14), transparent 24%),
+        radial-gradient(circle at 50% 82%, rgba(255, 255, 255, 0.06), transparent 22%);
+    filter: blur(22px);
+    z-index: -2;
+}
+
+@keyframes hero-video-float {
+    0%,
+    100% {
+        transform:
+            translate3d(var(--hero-video-parallax-x, 0px), calc(var(--hero-video-parallax-y, 0px) + 0px), 0)
+            rotateX(var(--hero-video-rotate-x, 0deg))
+            rotateY(var(--hero-video-rotate-y, 0deg))
+            scale(var(--hero-video-scale, 1));
+    }
+    50% {
+        transform:
+            translate3d(var(--hero-video-parallax-x, 0px), calc(var(--hero-video-parallax-y, 0px) - 10px), 0)
+            rotateX(var(--hero-video-rotate-x, 0deg))
+            rotateY(var(--hero-video-rotate-y, 0deg))
+            scale(var(--hero-video-scale, 1));
+    }
 }
 
 :root[data-theme='light'] .hero-mini-card {
@@ -561,16 +662,31 @@
 
 @media (max-width: 640px) {
     .hero-overlap-section {
-        padding-bottom: 8rem;
+        padding-top: 4.5rem;
+        padding-bottom: 10rem;
     }
 
     .hero-video-stage {
-        margin-bottom: -4.5rem;
+        margin-top: 1rem;
+        margin-bottom: -6rem;
     }
 
     .editorial-overlap-section {
-        margin-top: -2rem;
-        padding-top: 6rem;
+        margin-top: -2.5rem;
+        padding-top: 8rem;
+    }
+
+    .hero-video-shadow {
+        display: none;
+    }
+
+    .hero-video-shell {
+        border-radius: 1.6rem;
+        padding: 0.72rem;
+    }
+
+    .hero-video-frame {
+        border-radius: 1.15rem;
     }
 
     .hero-video-poster {
