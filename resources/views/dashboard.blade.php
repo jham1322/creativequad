@@ -101,10 +101,6 @@
                                                 <path d="M8 6.82v10.36c0 .79.87 1.27 1.54.84l8.02-5.18a1 1 0 0 0 0-1.68L9.54 5.98A1 1 0 0 0 8 6.82Z" />
                                             </svg>
                                         </span>
-                                        <span class="hero-video-poster-copy">
-                                            <strong>Watch the promo video</strong>
-                                            <small>See how the course helps you build and launch real web apps.</small>
-                                        </span>
                                     </button>
                                     <iframe
                                         title="Creative Quad course preview"
