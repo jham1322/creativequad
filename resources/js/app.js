@@ -121,6 +121,25 @@ const countdownRoot = document.getElementById('pricing-countdown');
 const passwordToggles = document.querySelectorAll('[data-password-toggle]');
 const heroVideoStage = document.querySelector('[data-hero-video-stage]');
 const heroVideoShell = document.querySelector('[data-hero-video-shell]');
+const heroVideoFrame = document.querySelector('[data-hero-video-frame]');
+const heroVideoPosterButton = document.querySelector('[data-hero-video-play]');
+const heroVideoIframe = document.querySelector('[data-hero-video-iframe]');
+
+heroVideoPosterButton?.addEventListener('click', () => {
+    if (!(heroVideoIframe instanceof HTMLIFrameElement) || !(heroVideoFrame instanceof HTMLElement)) {
+        return;
+    }
+
+    const embedSrc = heroVideoPosterButton.dataset.embedSrc;
+
+    if (!embedSrc) {
+        return;
+    }
+
+    const separator = embedSrc.includes('?') ? '&' : '?';
+    heroVideoIframe.src = `${embedSrc}${separator}autoplay=1`;
+    heroVideoFrame.classList.add('is-playing');
+});
 
 if (heroVideoStage && heroVideoShell && !prefersReducedMotion.matches) {
     let ticking = false;

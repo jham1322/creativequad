@@ -84,13 +84,34 @@
                                 <div class="hero-video-orb hero-video-orb-left" aria-hidden="true"></div>
                                 <div class="hero-video-orb hero-video-orb-right" aria-hidden="true"></div>
                                 <div class="hero-video-rim" aria-hidden="true"></div>
-                                <div class="hero-video-frame">
+                                <div class="hero-video-frame" data-hero-video-frame>
+                                    <button
+                                        type="button"
+                                        class="hero-video-poster"
+                                        data-hero-video-play
+                                        data-embed-src="https://player.mediadelivery.net/play/657301/0d1f5560-68ca-4f13-bc23-2929271a84ca"
+                                        style="background-image:
+                                            linear-gradient(180deg, rgba(3, 9, 18, 0.04), rgba(3, 9, 18, 0.48)),
+                                            linear-gradient(135deg, rgba(92, 54, 255, 0.18), rgba(255, 93, 177, 0.14)),
+                                            url('{{ asset('images/hero/fgg.webp') }}');"
+                                    >
+                                        <span class="hero-video-poster-glow" aria-hidden="true"></span>
+                                        <span class="hero-video-play-button" aria-hidden="true">
+                                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M8 6.82v10.36c0 .79.87 1.27 1.54.84l8.02-5.18a1 1 0 0 0 0-1.68L9.54 5.98A1 1 0 0 0 8 6.82Z" />
+                                            </svg>
+                                        </span>
+                                        <span class="hero-video-poster-copy">
+                                            <strong>Watch the promo video</strong>
+                                            <small>See how the course helps you build and launch real web apps.</small>
+                                        </span>
+                                    </button>
                                     <iframe
-                                        src="https://player.mediadelivery.net/play/657301/0d1f5560-68ca-4f13-bc23-2929271a84ca"
                                         title="Creative Quad course preview"
                                         loading="lazy"
                                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                                         allowfullscreen
+                                        data-hero-video-iframe
                                     ></iframe>
                                 </div>
                             </div>
