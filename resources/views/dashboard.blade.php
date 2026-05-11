@@ -79,15 +79,10 @@
                             </a>
                         </div>
 
-                        <div class="hero-video-stage reveal reveal-delay-4 mt-22 w-full max-w-[88rem]" data-hero-video-stage>
-                            <div class="hero-video-shadow hero-video-shadow-left" aria-hidden="true"></div>
-                            <div class="hero-video-shadow hero-video-shadow-right" aria-hidden="true"></div>
-                            <div class="hero-video-backplate" aria-hidden="true"></div>
-                            <div class="hero-video-ambient" aria-hidden="true"></div>
+                        <div class="hero-video-stage reveal reveal-delay-4 mt-18 w-full max-w-6xl" data-hero-video-stage>
                             <div class="hero-video-shell" data-hero-video-shell>
                                 <div class="hero-video-orb hero-video-orb-left" aria-hidden="true"></div>
                                 <div class="hero-video-orb hero-video-orb-right" aria-hidden="true"></div>
-                                <div class="hero-video-orb hero-video-orb-center" aria-hidden="true"></div>
                                 <div class="hero-video-rim" aria-hidden="true"></div>
                                 <div class="hero-video-frame" data-hero-video-frame>
                                     <button
@@ -95,6 +90,7 @@
                                         class="hero-video-poster"
                                         data-hero-video-play
                                         data-embed-src="https://player.mediadelivery.net/play/657301/0d1f5560-68ca-4f13-bc23-2929271a84ca"
+                                        data-embed-autoplay-src="https://player.mediadelivery.net/play/657301/0d1f5560-68ca-4f13-bc23-2929271a84ca?autoplay=true&muted=true&mute=true"
                                         style="background-image:
                                             linear-gradient(180deg, rgba(3, 9, 18, 0.04), rgba(3, 9, 18, 0.48)),
                                             linear-gradient(135deg, rgba(92, 54, 255, 0.18), rgba(255, 93, 177, 0.14)),

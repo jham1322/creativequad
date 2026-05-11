@@ -125,25 +125,26 @@ const heroVideoFrame = document.querySelector('[data-hero-video-frame]');
 const heroVideoPosterButton = document.querySelector('[data-hero-video-play]');
 const heroVideoIframe = document.querySelector('[data-hero-video-iframe]');
 
-heroVideoPosterButton?.addEventListener('click', () => {
+const startHeroVideo = (embedSrc) => {
     if (!(heroVideoIframe instanceof HTMLIFrameElement) || !(heroVideoFrame instanceof HTMLElement)) {
         return;
     }
-
-    const embedSrc = heroVideoPosterButton.dataset.embedSrc;
 
     if (!embedSrc) {
         return;
     }
 
     const separator = embedSrc.includes('?') ? '&' : '?';
-    heroVideoIframe.src = `${embedSrc}${separator}autoplay=1`;
+    heroVideoIframe.src = `${embedSrc}${separator}playsinline=1`;
     heroVideoFrame.classList.add('is-playing');
+};
+
+heroVideoPosterButton?.addEventListener('click', () => {
+    startHeroVideo(`${heroVideoPosterButton.dataset.embedSrc || ''}?autoplay=1`);
 });
 
 if (heroVideoStage && heroVideoShell && !prefersReducedMotion.matches) {
     let ticking = false;
-    let pointerTicking = false;
 
     const updateHeroVideoZoom = () => {
         const rect = heroVideoStage.getBoundingClientRect();
@@ -164,18 +165,6 @@ if (heroVideoStage && heroVideoShell && !prefersReducedMotion.matches) {
         ticking = false;
     };
 
-    const updateHeroVideoParallax = (clientX, clientY) => {
-        const rect = heroVideoStage.getBoundingClientRect();
-        const relativeX = ((clientX - rect.left) / rect.width) - 0.5;
-        const relativeY = ((clientY - rect.top) / rect.height) - 0.5;
-
-        heroVideoShell.style.setProperty('--hero-video-parallax-x', `${(relativeX * 12).toFixed(2)}px`);
-        heroVideoShell.style.setProperty('--hero-video-parallax-y', `${(relativeY * 10).toFixed(2)}px`);
-        heroVideoShell.style.setProperty('--hero-video-rotate-y', `${(relativeX * 2.4).toFixed(2)}deg`);
-        heroVideoShell.style.setProperty('--hero-video-rotate-x', `${(relativeY * -2.2).toFixed(2)}deg`);
-        pointerTicking = false;
-    };
-
     const requestHeroVideoZoomUpdate = () => {
         if (ticking) {
             return;
@@ -185,25 +174,39 @@ if (heroVideoStage && heroVideoShell && !prefersReducedMotion.matches) {
         window.requestAnimationFrame(updateHeroVideoZoom);
     };
 
-    const requestHeroVideoParallaxUpdate = (event) => {
-        if (pointerTicking) {
-            return;
-        }
-
-        pointerTicking = true;
-        window.requestAnimationFrame(() => updateHeroVideoParallax(event.clientX, event.clientY));
-    };
-
     updateHeroVideoZoom();
     window.addEventListener('scroll', requestHeroVideoZoomUpdate, { passive: true });
     window.addEventListener('resize', requestHeroVideoZoomUpdate);
-    heroVideoStage.addEventListener('pointermove', requestHeroVideoParallaxUpdate);
-    heroVideoStage.addEventListener('pointerleave', () => {
-        heroVideoShell.style.setProperty('--hero-video-parallax-x', '0px');
-        heroVideoShell.style.setProperty('--hero-video-parallax-y', '0px');
-        heroVideoShell.style.setProperty('--hero-video-rotate-y', '0deg');
-        heroVideoShell.style.setProperty('--hero-video-rotate-x', '0deg');
-    });
+}
+
+if (heroVideoStage && heroVideoPosterButton && 'IntersectionObserver' in window) {
+    let hasAutoStartedHeroVideo = false;
+
+    const autoStartHeroVideo = new IntersectionObserver(
+        (entries) => {
+            const entry = entries[0];
+
+            if (!entry?.isIntersecting || hasAutoStartedHeroVideo) {
+                return;
+            }
+
+            const autoplaySrc = heroVideoPosterButton.dataset.embedAutoplaySrc || '';
+
+            if (!autoplaySrc) {
+                return;
+            }
+
+            startHeroVideo(autoplaySrc);
+            hasAutoStartedHeroVideo = true;
+            autoStartHeroVideo.disconnect();
+        },
+        {
+            threshold: 0.55,
+            rootMargin: '0px 0px -6% 0px',
+        },
+    );
+
+    autoStartHeroVideo.observe(heroVideoStage);
 }
 
 if (countdownRoot) {
