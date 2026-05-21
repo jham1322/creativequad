@@ -87,20 +87,10 @@ class AdminDashboardController extends Controller
         $order->forceFill([
             'status' => 'deleted',
             'deleted_at' => now(),
+            'notes' => 'Removed from the admin pending list. The linked customer account was retained.',
         ])->save();
 
-        if ($order->user && $order->user->purchased_at === null) {
-            $hasActiveOrders = $order->user->orders()
-                ->where('id', '!=', $order->id)
-                ->whereNotIn('status', ['deleted'])
-                ->exists();
-
-            if (! $hasActiveOrders) {
-                $order->user->delete();
-            }
-        }
-
-        return back()->with('admin_status', 'Order removed from the pending list.');
+        return back()->with('admin_status', 'Order removed from the pending list. The customer account was kept in the database.');
     }
 
     private function ensureAdmin(Request $request): ?RedirectResponse
