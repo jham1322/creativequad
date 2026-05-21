@@ -181,17 +181,18 @@
 
                                 <div class="checkout-method-list mt-6">
                                     <label class="checkout-method-option">
-                                        <input class="checkout-method-radio" type="radio" value="gcash" @checked(old('payment_method', 'gcash') === 'gcash') name="payment_method">
+                                        <input class="checkout-method-radio" type="radio" value="qrph" @checked(old('payment_method', 'qrph') === 'qrph') name="payment_method">
                                         <div class="checkout-method-panel">
                                             <div class="checkout-method-head">
                                                 <span class="checkout-method-control" aria-hidden="true"></span>
                                                 <div class="checkout-method-title-wrap">
-                                                    <span class="checkout-method-title">GCash</span>
-                                                    <span class="checkout-method-logo checkout-method-logo-gcash">GCash</span>
+                                                    <span class="checkout-method-title">QR Payment</span>
+                                                    <span class="checkout-method-logo checkout-method-logo-qrph">QRPh</span>
+                                                    <span class="checkout-method-recommend-badge">Recommended</span>
                                                 </div>
                                             </div>
                                             <div class="checkout-method-body">
-                                                Pay with your GCash account via <strong>Xendit</strong>.
+                                                Pay through <strong>QRPH</strong> if you prefer a QR-based checkout flow.
                                             </div>
                                         </div>
                                     </label>
@@ -227,22 +228,15 @@
                                             </div>
                                         </div>
                                     </label>
+                                </div>
 
-                                    <label class="checkout-method-option">
-                                        <input class="checkout-method-radio" type="radio" value="qrph" @checked(old('payment_method') === 'qrph') name="payment_method">
-                                        <div class="checkout-method-panel">
-                                            <div class="checkout-method-head">
-                                                <span class="checkout-method-control" aria-hidden="true"></span>
-                                                <div class="checkout-method-title-wrap">
-                                                    <span class="checkout-method-title">QR Payment</span>
-                                                    <span class="checkout-method-logo checkout-method-logo-qrph">QRPh</span>
-                                                </div>
-                                            </div>
-                                            <div class="checkout-method-body">
-                                                Pay through <strong>QRPH</strong> if you prefer a QR-based checkout flow.
-                                            </div>
-                                        </div>
-                                    </label>
+                                <div class="checkout-payment-note">
+                                    <p class="checkout-payment-note-title">QRPH works with more than one app</p>
+                                    <p class="checkout-payment-note-body">
+                                        You can scan the QRPH code using <strong>GCash</strong>, <strong>Maya</strong>, and other
+                                        <strong>QRPh-compatible banking or e-wallet apps</strong>. If one wallet is unavailable,
+                                        you can usually still complete payment using another QRPh-supported app.
+                                    </p>
                                 </div>
                             </div>
 

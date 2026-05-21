@@ -402,11 +402,12 @@ class CheckoutController extends Controller
     private function paymentMethodOptions(): array
     {
         return [
-            'gcash' => [
-                'title' => 'GCash',
-                'logo' => 'GCash',
-                'logoClass' => 'checkout-method-logo-gcash',
-                'description' => 'Pay with your GCash account via Xendit.',
+            'qrph' => [
+                'title' => 'QR Payment',
+                'logo' => 'QRPh',
+                'logoClass' => 'checkout-method-logo-qrph',
+                'description' => 'Pay through QRPH if you prefer a QR-based checkout flow.',
+                'recommended' => true,
             ],
             'maya' => [
                 'title' => 'PayMaya',
@@ -419,12 +420,6 @@ class CheckoutController extends Controller
                 'logo' => 'Grab',
                 'logoClass' => 'checkout-method-logo-grabpay',
                 'description' => 'Pay directly with GrabPay without showing other unrelated payment channels.',
-            ],
-            'qrph' => [
-                'title' => 'QR Payment',
-                'logo' => 'QRPh',
-                'logoClass' => 'checkout-method-logo-qrph',
-                'description' => 'Pay through QRPH if you prefer a QR-based checkout flow.',
             ],
         ];
     }

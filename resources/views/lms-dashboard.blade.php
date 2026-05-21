@@ -105,7 +105,7 @@
                                                     type="radio"
                                                     name="payment_method"
                                                     value="{{ $key }}"
-                                                    @checked(old('payment_method', strtolower((string) $pendingOrder?->payment_method ?: 'gcash')) === $key)
+                                                    @checked(old('payment_method', strtolower((string) $pendingOrder?->payment_method ?: 'qrph')) === $key)
                                                 >
                                                 <div class="checkout-method-panel">
                                                     <div class="checkout-method-head">
@@ -113,6 +113,9 @@
                                                         <div class="checkout-method-title-wrap">
                                                             <span class="checkout-method-title">{{ $method['title'] }}</span>
                                                             <span class="checkout-method-logo {{ $method['logoClass'] }}">{{ $method['logo'] }}</span>
+                                                            @if (! empty($method['recommended']))
+                                                                <span class="checkout-method-recommend-badge">Recommended</span>
+                                                            @endif
                                                         </div>
                                                     </div>
                                                     <div class="checkout-method-body">
@@ -126,6 +129,14 @@
                                     @error('payment_method')
                                         <small class="checkout-field-error">{{ $message }}</small>
                                     @enderror
+
+                                    <div class="checkout-payment-note checkout-payment-note-compact">
+                                        <p class="checkout-payment-note-title">QRPH can still accept GCash and Maya</p>
+                                        <p class="checkout-payment-note-body">
+                                            Scan the QRPH code using <strong>GCash</strong>, <strong>Maya</strong>, or other
+                                            <strong>QRPh-compatible banking and e-wallet apps</strong>.
+                                        </p>
+                                    </div>
 
                                     <button type="submit" class="lms-pending-secondary-button">
                                         Change gateway and pay again
