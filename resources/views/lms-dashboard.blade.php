@@ -82,6 +82,15 @@
                                             Current payment gateway: {{ $pendingOrder->payment_method }}
                                         </p>
                                     @endif
+                                    @if (($pendingOrder?->payment_method ?? '') === 'OFFLINE_GCASH')
+                                        <div class="checkout-payment-note checkout-payment-note-compact mt-4">
+                                            <p class="checkout-payment-note-title">Offline GCash payment details</p>
+                                            <p class="checkout-payment-note-body">
+                                                Send your payment to <strong>{{ $offlineGcashDetails['name'] }}</strong> at
+                                                <strong>{{ $offlineGcashDetails['number'] }}</strong>, then wait for admin approval.
+                                            </p>
+                                        </div>
+                                    @endif
                                 </div>
 
                                 <div class="lms-pending-actions">
@@ -129,14 +138,6 @@
                                     @error('payment_method')
                                         <small class="checkout-field-error">{{ $message }}</small>
                                     @enderror
-
-                                    <div class="checkout-payment-note checkout-payment-note-compact">
-                                        <p class="checkout-payment-note-title">QRPH can still accept GCash and Maya</p>
-                                        <p class="checkout-payment-note-body">
-                                            Scan the QRPH code using <strong>GCash</strong>, <strong>Maya</strong>, or other
-                                            <strong>QRPh-compatible banking and e-wallet apps</strong>.
-                                        </p>
-                                    </div>
 
                                     <button type="submit" class="lms-pending-secondary-button">
                                         Change gateway and pay again

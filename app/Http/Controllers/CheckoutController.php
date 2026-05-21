@@ -37,6 +37,7 @@ class CheckoutController extends Controller
 
         return view('checkout', [
             'coursePrice' => number_format((float) config('services.xendit.course_price', 599), 2),
+            'offlineGcashDetails' => $this->offlineGcashDetails(),
         ]);
     }
 
@@ -53,70 +54,50 @@ class CheckoutController extends Controller
                 Rule::unique('users', 'username'),
             ],
             'password' => ['required', 'string', 'min:8', 'max:255'],
-            'payment_method' => ['required', 'string', 'in:gcash,maya,grabpay,qrph'],
+            'payment_method' => ['required', 'string', 'in:maya,grabpay,qrph,offline_gcash'],
         ], [
             'email.unique' => 'Email already exists.',
             'username.unique' => 'Username already exists.',
         ]);
 
-        $secretKey = (string) config('services.xendit.secret_key');
-
-        if ($secretKey === '') {
-            return back()
-                ->withInput($request->except('password'))
-                ->withErrors([
-                    'checkout' => 'Xendit is not configured yet. Add your secret key first.',
-                ]);
-        }
-
         $price = (float) config('services.xendit.course_price', 599);
-        $externalId = 'vibe-course-' . Str::uuid();
-        $paymentMethodMap = [
-            'gcash' => ['GCASH'],
-            'maya' => ['PAYMAYA'],
-            'grabpay' => ['GRABPAY'],
-            'qrph' => ['QRPH'],
-        ];
+        $externalId = $validated['payment_method'] === 'offline_gcash'
+            ? 'offline-gcash-' . Str::uuid()
+            : 'vibe-course-' . Str::uuid();
+        $invoiceUrl = null;
 
-        $response = Http::withBasicAuth($secretKey, '')
-            ->acceptJson()
-            ->post(rtrim((string) config('services.xendit.base_url', 'https://api.xendit.co'), '/') . '/v2/invoices', [
+        if ($validated['payment_method'] !== 'offline_gcash') {
+            $secretKey = (string) config('services.xendit.secret_key');
+
+            if ($secretKey === '') {
+                return back()
+                    ->withInput($request->except('password'))
+                    ->withErrors([
+                        'checkout' => 'Xendit is not configured yet. Add your secret key first.',
+                    ]);
+            }
+
+            $response = $this->createXenditInvoice([
                 'external_id' => $externalId,
                 'amount' => $price,
-                'currency' => 'PHP',
-                'description' => 'Build Real Full Stack Web Apps using AI and Codex',
-                'invoice_duration' => 86400,
-                'success_redirect_url' => route('checkout.success', ['reference' => $externalId]),
-                'failure_redirect_url' => route('checkout.failed', ['reference' => $externalId]),
-                'customer' => [
-                    'given_names' => $validated['first_name'],
-                    'surname' => $validated['last_name'],
-                    'email' => $validated['email'],
-                ],
-                'items' => [
-                    [
-                        'name' => 'Build Real Full Stack Web Apps using AI and Codex',
-                        'quantity' => 1,
-                        'price' => $price,
-                        'category' => 'Course',
-                        'url' => url('/'),
-                    ],
-                ],
-                'payment_methods' => $paymentMethodMap[$validated['payment_method']],
-                'metadata' => [
-                    'username' => $validated['username'],
-                    'payment_method' => $validated['payment_method'],
-                ],
+                'payment_method' => $validated['payment_method'],
+                'first_name' => $validated['first_name'],
+                'last_name' => $validated['last_name'],
+                'email' => $validated['email'],
+                'username' => $validated['username'],
             ]);
 
-        if ($response->failed() || ! $response->json('invoice_url')) {
-            report('Xendit checkout creation failed: ' . $response->body());
+            if ($response->failed() || ! $response->json('invoice_url')) {
+                report('Xendit checkout creation failed: ' . $response->body());
 
-            return back()
-                ->withInput($request->except('password'))
-                ->withErrors([
-                    'checkout' => 'We could not create your checkout session right now. Please try again in a moment.',
-                ]);
+                return back()
+                    ->withInput($request->except('password'))
+                    ->withErrors([
+                        'checkout' => 'We could not create your checkout session right now. Please try again in a moment.',
+                    ]);
+            }
+
+            $invoiceUrl = (string) $response->json('invoice_url');
         }
 
         $user = new User();
@@ -141,12 +122,15 @@ class CheckoutController extends Controller
             'status' => 'pending',
             'payment_method' => strtoupper($validated['payment_method']),
             'xendit_reference' => $externalId,
-            'invoice_url' => (string) $response->json('invoice_url'),
+            'invoice_url' => $invoiceUrl,
             'first_name' => $validated['first_name'],
             'last_name' => $validated['last_name'],
             'email' => $validated['email'],
             'username' => $validated['username'],
-            'source' => 'xendit',
+            'source' => $validated['payment_method'] === 'offline_gcash' ? 'offline_gcash' : 'xendit',
+            'notes' => $validated['payment_method'] === 'offline_gcash'
+                ? 'Waiting for offline GCash confirmation from admin.'
+                : null,
         ]);
 
         Cache::store('file')->put('xendit-order:' . $externalId, [
@@ -158,27 +142,35 @@ class CheckoutController extends Controller
             'payment_method' => strtoupper($validated['payment_method']),
         ], now()->addDays(30));
 
-        try {
-            Mail::to($validated['email'])->send(new CoursePaymentPending([
-                'name' => trim($validated['first_name'] . ' ' . $validated['last_name']),
-                'amount' => number_format($price, 2),
-                'reference' => $externalId,
-                'payment_method' => strtoupper($validated['payment_method']),
-                'course_name' => 'Build Real Full-Stack Web Apps using AI and Codex',
-                'payment_url' => $response->json('invoice_url'),
-            ]));
-        } catch (\Throwable $exception) {
-            Log::warning('Pending checkout email could not be sent.', [
-                'external_id' => $externalId,
-                'email' => $validated['email'],
-                'message' => $exception->getMessage(),
-            ]);
+        if ($validated['payment_method'] !== 'offline_gcash') {
+            try {
+                Mail::to($validated['email'])->send(new CoursePaymentPending([
+                    'name' => trim($validated['first_name'] . ' ' . $validated['last_name']),
+                    'amount' => number_format($price, 2),
+                    'reference' => $externalId,
+                    'payment_method' => strtoupper($validated['payment_method']),
+                    'course_name' => 'Build Real Full-Stack Web Apps using AI and Codex',
+                    'payment_url' => $invoiceUrl,
+                ]));
+            } catch (\Throwable $exception) {
+                Log::warning('Pending checkout email could not be sent.', [
+                    'external_id' => $externalId,
+                    'email' => $validated['email'],
+                    'message' => $exception->getMessage(),
+                ]);
+            }
         }
 
         Auth::login($user);
         $request->session()->regenerate();
 
-        return redirect()->away($response->json('invoice_url'));
+        if ($validated['payment_method'] === 'offline_gcash') {
+            return redirect()
+                ->route('lms.dashboard')
+                ->with('pending_payment_notice', 'Your offline GCash payment request has been created. Please send your payment to the masked account below and wait for admin approval.');
+        }
+
+        return redirect()->away($invoiceUrl);
     }
 
     public function success(Request $request): RedirectResponse
@@ -275,6 +267,7 @@ class CheckoutController extends Controller
             'hasPaidAccess' => $hasPaidAccess,
             'pendingOrder' => $pendingOrder,
             'paymentMethodOptions' => $this->paymentMethodOptions(),
+            'offlineGcashDetails' => $this->offlineGcashDetails(),
             'lessons' => $this->resolveLessons(),
         ]);
     }
@@ -299,7 +292,7 @@ class CheckoutController extends Controller
         }
 
         $validated = $request->validate([
-            'payment_method' => ['required', 'string', 'in:gcash,maya,grabpay,qrph'],
+            'payment_method' => ['required', 'string', 'in:maya,grabpay,qrph,offline_gcash'],
         ]);
 
         $pendingOrder = Order::query()
@@ -316,25 +309,32 @@ class CheckoutController extends Controller
                 ]);
         }
 
-        $response = $this->createXenditInvoice([
-            'external_id' => 'vibe-course-' . Str::uuid(),
-            'amount' => (float) $pendingOrder->amount,
-            'payment_method' => $validated['payment_method'],
-            'first_name' => $pendingOrder->first_name ?: ($user->first_name ?: $user->name),
-            'last_name' => $pendingOrder->last_name ?: $user->last_name,
-            'email' => $pendingOrder->email ?: $user->email,
-            'username' => $pendingOrder->username ?: $user->username,
-        ]);
+        $externalId = $validated['payment_method'] === 'offline_gcash'
+            ? 'offline-gcash-' . Str::uuid()
+            : 'vibe-course-' . Str::uuid();
+        $invoiceUrl = null;
 
-        if ($response->failed() || ! $response->json('invoice_url')) {
-            report('Xendit pending payment retry failed: ' . $response->body());
+        if ($validated['payment_method'] !== 'offline_gcash') {
+            $response = $this->createXenditInvoice([
+                'external_id' => $externalId,
+                'amount' => (float) $pendingOrder->amount,
+                'payment_method' => $validated['payment_method'],
+                'first_name' => $pendingOrder->first_name ?: ($user->first_name ?: $user->name),
+                'last_name' => $pendingOrder->last_name ?: $user->last_name,
+                'email' => $pendingOrder->email ?: $user->email,
+                'username' => $pendingOrder->username ?: $user->username,
+            ]);
 
-            return redirect()
-                ->route('lms.dashboard')
-                ->with('pending_payment_notice', 'We could not switch your payment method right now. Please try again in a moment.');
+            if ($response->failed() || ! $response->json('invoice_url')) {
+                report('Xendit pending payment retry failed: ' . $response->body());
+
+                return redirect()
+                    ->route('lms.dashboard')
+                    ->with('pending_payment_notice', 'We could not switch your payment method right now. Please try again in a moment.');
+            }
+
+            $invoiceUrl = (string) $response->json('invoice_url');
         }
-
-        $externalId = (string) $response->json('external_id');
 
         $newOrder = Order::query()->create([
             'user_id' => $user->id,
@@ -345,13 +345,15 @@ class CheckoutController extends Controller
             'status' => 'pending',
             'payment_method' => strtoupper($validated['payment_method']),
             'xendit_reference' => $externalId,
-            'invoice_url' => (string) $response->json('invoice_url'),
+            'invoice_url' => $invoiceUrl,
             'first_name' => $pendingOrder->first_name ?: $user->first_name,
             'last_name' => $pendingOrder->last_name ?: $user->last_name,
             'email' => $pendingOrder->email ?: $user->email,
             'username' => $pendingOrder->username ?: $user->username,
-            'source' => 'xendit',
-            'notes' => 'Retry invoice created from dashboard pending-payment flow.',
+            'source' => $validated['payment_method'] === 'offline_gcash' ? 'offline_gcash' : 'xendit',
+            'notes' => $validated['payment_method'] === 'offline_gcash'
+                ? 'Offline GCash retry created from dashboard pending-payment flow.'
+                : 'Retry invoice created from dashboard pending-payment flow.',
         ]);
 
         $user->forceFill([
@@ -367,24 +369,32 @@ class CheckoutController extends Controller
             'payment_method' => strtoupper($validated['payment_method']),
         ], now()->addDays(30));
 
-        try {
-            Mail::to($pendingOrder->email ?: $user->email)->send(new CoursePaymentPending([
-                'name' => trim(($pendingOrder->first_name ?: $user->first_name ?: $user->name) . ' ' . ($pendingOrder->last_name ?: $user->last_name)),
-                'amount' => number_format((float) $pendingOrder->amount, 2),
-                'reference' => $externalId,
-                'payment_method' => strtoupper($validated['payment_method']),
-                'course_name' => $pendingOrder->course_name ?: 'Build Real Full-Stack Web Apps using AI and Codex',
-                'payment_url' => $response->json('invoice_url'),
-            ]));
-        } catch (\Throwable $exception) {
-            Log::warning('Pending retry checkout email could not be sent.', [
-                'external_id' => $externalId,
-                'email' => $pendingOrder->email ?: $user->email,
-                'message' => $exception->getMessage(),
-            ]);
+        if ($validated['payment_method'] !== 'offline_gcash') {
+            try {
+                Mail::to($pendingOrder->email ?: $user->email)->send(new CoursePaymentPending([
+                    'name' => trim(($pendingOrder->first_name ?: $user->first_name ?: $user->name) . ' ' . ($pendingOrder->last_name ?: $user->last_name)),
+                    'amount' => number_format((float) $pendingOrder->amount, 2),
+                    'reference' => $externalId,
+                    'payment_method' => strtoupper($validated['payment_method']),
+                    'course_name' => $pendingOrder->course_name ?: 'Build Real Full-Stack Web Apps using AI and Codex',
+                    'payment_url' => $invoiceUrl,
+                ]));
+            } catch (\Throwable $exception) {
+                Log::warning('Pending retry checkout email could not be sent.', [
+                    'external_id' => $externalId,
+                    'email' => $pendingOrder->email ?: $user->email,
+                    'message' => $exception->getMessage(),
+                ]);
+            }
         }
 
-        return redirect()->away($response->json('invoice_url'));
+        if ($validated['payment_method'] === 'offline_gcash') {
+            return redirect()
+                ->route('lms.dashboard')
+                ->with('pending_payment_notice', 'Your payment method has been changed to offline GCash. Please send payment to the masked account below and wait for admin approval.');
+        }
+
+        return redirect()->away($invoiceUrl);
     }
 
     private function resolveLessons()
@@ -406,7 +416,7 @@ class CheckoutController extends Controller
                 'title' => 'QR Payment',
                 'logo' => 'QRPh',
                 'logoClass' => 'checkout-method-logo-qrph',
-                'description' => 'Pay through QRPH if you prefer a QR-based checkout flow.',
+                'description' => 'Pay through QRPH. It will also accept GCash, Maya, and other QRPh-compatible banking or e-wallet apps.',
                 'recommended' => true,
             ],
             'maya' => [
@@ -420,6 +430,12 @@ class CheckoutController extends Controller
                 'logo' => 'Grab',
                 'logoClass' => 'checkout-method-logo-grabpay',
                 'description' => 'Pay directly with GrabPay without showing other unrelated payment channels.',
+            ],
+            'offline_gcash' => [
+                'title' => 'Offline GCash',
+                'logo' => 'Manual',
+                'logoClass' => 'checkout-method-logo-gcash',
+                'description' => 'Send payment to the masked GCash account below, then wait for admin review and approval.',
             ],
         ];
     }
@@ -463,10 +479,17 @@ class CheckoutController extends Controller
     private function paymentMethodMap(): array
     {
         return [
-            'gcash' => ['GCASH'],
             'maya' => ['PAYMAYA'],
             'grabpay' => ['GRABPAY'],
             'qrph' => ['QRPH'],
+        ];
+    }
+
+    private function offlineGcashDetails(): array
+    {
+        return [
+            'name' => 'R*****l J*****r',
+            'number' => '0930-414-2218',
         ];
     }
 
@@ -572,6 +595,12 @@ class CheckoutController extends Controller
             ])->save();
         }
 
+        if ($user instanceof User) {
+            $this->cleanupResolvedPendingOrders($user, $externalId);
+        } elseif ($resolvedEmail !== '') {
+            $this->cleanupResolvedPendingOrdersByEmail($resolvedEmail, $externalId);
+        }
+
         $sentKey = 'xendit-course-paid-mail:' . $externalId;
 
         if (! Cache::store('file')->add($sentKey, true, now()->addDays(30))) {
@@ -587,5 +616,31 @@ class CheckoutController extends Controller
             'course_name' => 'Build Real Full-Stack Web Apps using AI and Codex',
             'dashboard_url' => route('login'),
         ]));
+    }
+
+    private function cleanupResolvedPendingOrders(User $user, string $keepReference): void
+    {
+        Order::query()
+            ->where('user_id', $user->id)
+            ->where('status', 'pending')
+            ->where('xendit_reference', '!=', $keepReference)
+            ->update([
+                'status' => 'deleted',
+                'deleted_at' => now(),
+                'notes' => 'Automatically cleaned up after payment was completed on another checkout.',
+            ]);
+    }
+
+    private function cleanupResolvedPendingOrdersByEmail(string $email, string $keepReference): void
+    {
+        Order::query()
+            ->where('email', $email)
+            ->where('status', 'pending')
+            ->where('xendit_reference', '!=', $keepReference)
+            ->update([
+                'status' => 'deleted',
+                'deleted_at' => now(),
+                'notes' => 'Automatically cleaned up after payment was completed on another checkout.',
+            ]);
     }
 }

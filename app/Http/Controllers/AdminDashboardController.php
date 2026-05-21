@@ -16,6 +16,8 @@ class AdminDashboardController extends Controller
             return $redirect;
         }
 
+        $this->cleanupResolvedPendingOrders();
+
         $paidStatuses = ['paid', 'approved'];
         $paidOrders = Order::query()
             ->whereIn('status', $paidStatuses)
@@ -25,6 +27,11 @@ class AdminDashboardController extends Controller
 
         $pendingOrders = Order::query()
             ->where('status', 'pending')
+            ->where(function ($query): void {
+                $query
+                    ->where('payment_method', 'OFFLINE_GCASH')
+                    ->orWhere('source', 'offline_gcash');
+            })
             ->latest()
             ->get();
 
@@ -107,5 +114,47 @@ class AdminDashboardController extends Controller
         }
 
         return null;
+    }
+
+    private function cleanupResolvedPendingOrders(): void
+    {
+        $paidStatuses = ['paid', 'approved'];
+
+        $staleUserOrderIds = Order::query()
+            ->where('status', 'pending')
+            ->whereHas('user', function ($query): void {
+                $query->whereNotNull('purchased_at');
+            })
+            ->pluck('id');
+
+        if ($staleUserOrderIds->isNotEmpty()) {
+            Order::query()
+                ->whereIn('id', $staleUserOrderIds)
+                ->update([
+                    'status' => 'deleted',
+                    'deleted_at' => now(),
+                    'notes' => 'Automatically hidden after the student already received paid access.',
+                ]);
+        }
+
+        $staleEmailOrderIds = Order::query()
+            ->where('status', 'pending')
+            ->whereIn('email', function ($query) use ($paidStatuses): void {
+                $query->select('email')
+                    ->from('orders')
+                    ->whereIn('status', $paidStatuses)
+                    ->whereNotNull('email');
+            })
+            ->pluck('id');
+
+        if ($staleEmailOrderIds->isNotEmpty()) {
+            Order::query()
+                ->whereIn('id', $staleEmailOrderIds)
+                ->update([
+                    'status' => 'deleted',
+                    'deleted_at' => now(),
+                    'notes' => 'Automatically hidden after a paid order was detected for the same email.',
+                ]);
+        }
     }
 }

@@ -74,6 +74,12 @@ class XenditWebhookController extends Controller
             ])->save();
         }
 
+        if ($user instanceof User) {
+            $this->cleanupResolvedPendingOrders($user, $externalId);
+        } else {
+            $this->cleanupResolvedPendingOrdersByEmail($email, $externalId);
+        }
+
         $resolvedName = $user?->first_name
             ?: ($order['name'] ?? $this->resolveName($payload));
 
@@ -120,5 +126,31 @@ class XenditWebhookController extends Controller
         $email = $this->resolveEmail($payload);
 
         return $email !== null ? strtok($email, '@') : 'Student';
+    }
+
+    private function cleanupResolvedPendingOrders(User $user, string $keepReference): void
+    {
+        Order::query()
+            ->where('user_id', $user->id)
+            ->where('status', 'pending')
+            ->where('xendit_reference', '!=', $keepReference)
+            ->update([
+                'status' => 'deleted',
+                'deleted_at' => now(),
+                'notes' => 'Automatically cleaned up after payment was completed on another checkout.',
+            ]);
+    }
+
+    private function cleanupResolvedPendingOrdersByEmail(string $email, string $keepReference): void
+    {
+        Order::query()
+            ->where('email', $email)
+            ->where('status', 'pending')
+            ->where('xendit_reference', '!=', $keepReference)
+            ->update([
+                'status' => 'deleted',
+                'deleted_at' => now(),
+                'notes' => 'Automatically cleaned up after payment was completed on another checkout.',
+            ]);
     }
 }

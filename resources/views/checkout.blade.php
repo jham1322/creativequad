@@ -192,7 +192,7 @@
                                                 </div>
                                             </div>
                                             <div class="checkout-method-body">
-                                                Pay through <strong>QRPH</strong> if you prefer a QR-based checkout flow.
+                                                Pay through <strong>QRPH</strong>. It will also accept <strong>GCash</strong>, <strong>Maya</strong>, and other <strong>QRPh-compatible banking or e-wallet apps</strong>.
                                             </div>
                                         </div>
                                     </label>
@@ -228,15 +228,26 @@
                                             </div>
                                         </div>
                                     </label>
-                                </div>
 
-                                <div class="checkout-payment-note">
-                                    <p class="checkout-payment-note-title">QRPH works with more than one app</p>
-                                    <p class="checkout-payment-note-body">
-                                        You can scan the QRPH code using <strong>GCash</strong>, <strong>Maya</strong>, and other
-                                        <strong>QRPh-compatible banking or e-wallet apps</strong>. If one wallet is unavailable,
-                                        you can usually still complete payment using another QRPh-supported app.
-                                    </p>
+                                    <label class="checkout-method-option">
+                                        <input class="checkout-method-radio" type="radio" value="offline_gcash" @checked(old('payment_method') === 'offline_gcash') name="payment_method">
+                                        <div class="checkout-method-panel">
+                                            <div class="checkout-method-head">
+                                                <span class="checkout-method-control" aria-hidden="true"></span>
+                                                <div class="checkout-method-title-wrap">
+                                                    <span class="checkout-method-title">Offline GCash</span>
+                                                    <span class="checkout-method-logo checkout-method-logo-gcash">Manual</span>
+                                                </div>
+                                            </div>
+                                            <div class="checkout-method-body">
+                                                You may pay through my GCash account. Account name:
+                                                <strong>{{ $offlineGcashDetails['name'] }}</strong>.
+                                                GCash number:
+                                                <strong>{{ $offlineGcashDetails['number'] }}</strong>.
+                                                After sending payment, wait for admin approval so your account can be unlocked.
+                                            </div>
+                                        </div>
+                                    </label>
                                 </div>
                             </div>
 
