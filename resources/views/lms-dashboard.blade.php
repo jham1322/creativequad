@@ -77,12 +77,60 @@
                                     <p class="mt-1 text-sm leading-6 text-muted-foreground">
                                         {{ session('pending_payment_notice', 'Please complete your pending payment to unlock all lessons, videos, and resources in your dashboard.') }}
                                     </p>
+                                    @if ($pendingOrder?->payment_method)
+                                        <p class="mt-3 text-xs font-medium uppercase tracking-[0.2em] text-primary/85">
+                                            Current payment gateway: {{ $pendingOrder->payment_method }}
+                                        </p>
+                                    @endif
                                 </div>
-                                @if ($pendingOrder?->invoice_url)
-                                    <a href="{{ $pendingOrder->invoice_url }}" class="lms-pending-button">
-                                        Continue payment
-                                    </a>
-                                @endif
+
+                                <div class="lms-pending-actions">
+                                    @if ($pendingOrder?->invoice_url)
+                                        <a href="{{ $pendingOrder->invoice_url }}" class="lms-pending-button">
+                                            Continue payment
+                                        </a>
+                                    @endif
+                                    <p class="text-sm leading-6 text-muted-foreground">
+                                        Need a different gateway? Choose another payment method below and we’ll open a new checkout for you.
+                                    </p>
+                                </div>
+
+                                <form method="POST" action="{{ route('lms.pending-payment.retry') }}" class="lms-pending-retry-form">
+                                    @csrf
+                                    <div class="lms-pending-method-list">
+                                        @foreach ($paymentMethodOptions as $key => $method)
+                                            <label class="checkout-method-option">
+                                                <input
+                                                    class="checkout-method-radio"
+                                                    type="radio"
+                                                    name="payment_method"
+                                                    value="{{ $key }}"
+                                                    @checked(old('payment_method', strtolower((string) $pendingOrder?->payment_method ?: 'gcash')) === $key)
+                                                >
+                                                <div class="checkout-method-panel">
+                                                    <div class="checkout-method-head">
+                                                        <span class="checkout-method-control" aria-hidden="true"></span>
+                                                        <div class="checkout-method-title-wrap">
+                                                            <span class="checkout-method-title">{{ $method['title'] }}</span>
+                                                            <span class="checkout-method-logo {{ $method['logoClass'] }}">{{ $method['logo'] }}</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="checkout-method-body">
+                                                        {{ $method['description'] }}
+                                                    </div>
+                                                </div>
+                                            </label>
+                                        @endforeach
+                                    </div>
+
+                                    @error('payment_method')
+                                        <small class="checkout-field-error">{{ $message }}</small>
+                                    @enderror
+
+                                    <button type="submit" class="lms-pending-secondary-button">
+                                        Change gateway and pay again
+                                    </button>
+                                </form>
                             </div>
                         @endunless
                     </header>

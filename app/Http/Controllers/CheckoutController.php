@@ -274,8 +274,117 @@ class CheckoutController extends Controller
             'studentName' => $user->first_name ?: $user->name,
             'hasPaidAccess' => $hasPaidAccess,
             'pendingOrder' => $pendingOrder,
+            'paymentMethodOptions' => $this->paymentMethodOptions(),
             'lessons' => $this->resolveLessons(),
         ]);
+    }
+
+    public function retryPendingPayment(Request $request): RedirectResponse
+    {
+        if (! Auth::check()) {
+            return redirect()
+                ->route('login')
+                ->withErrors([
+                    'login' => 'Please log in to continue your payment.',
+                ]);
+        }
+
+        /** @var User $user */
+        $user = Auth::user();
+
+        if ($user->purchased_at !== null) {
+            return redirect()
+                ->route('lms.dashboard')
+                ->with('pending_payment_notice', 'Your payment is already complete and your course access is active.');
+        }
+
+        $validated = $request->validate([
+            'payment_method' => ['required', 'string', 'in:gcash,maya,grabpay,qrph'],
+        ]);
+
+        $pendingOrder = Order::query()
+            ->where('user_id', $user->id)
+            ->where('status', 'pending')
+            ->latest()
+            ->first();
+
+        if (! $pendingOrder instanceof Order) {
+            return redirect()
+                ->route('checkout')
+                ->withErrors([
+                    'checkout' => 'No pending payment was found for your account. Please start a new checkout.',
+                ]);
+        }
+
+        $response = $this->createXenditInvoice([
+            'external_id' => 'vibe-course-' . Str::uuid(),
+            'amount' => (float) $pendingOrder->amount,
+            'payment_method' => $validated['payment_method'],
+            'first_name' => $pendingOrder->first_name ?: ($user->first_name ?: $user->name),
+            'last_name' => $pendingOrder->last_name ?: $user->last_name,
+            'email' => $pendingOrder->email ?: $user->email,
+            'username' => $pendingOrder->username ?: $user->username,
+        ]);
+
+        if ($response->failed() || ! $response->json('invoice_url')) {
+            report('Xendit pending payment retry failed: ' . $response->body());
+
+            return redirect()
+                ->route('lms.dashboard')
+                ->with('pending_payment_notice', 'We could not switch your payment method right now. Please try again in a moment.');
+        }
+
+        $externalId = (string) $response->json('external_id');
+
+        $newOrder = Order::query()->create([
+            'user_id' => $user->id,
+            'course_slug' => $pendingOrder->course_slug,
+            'course_name' => $pendingOrder->course_name,
+            'amount' => $pendingOrder->amount,
+            'currency' => $pendingOrder->currency,
+            'status' => 'pending',
+            'payment_method' => strtoupper($validated['payment_method']),
+            'xendit_reference' => $externalId,
+            'invoice_url' => (string) $response->json('invoice_url'),
+            'first_name' => $pendingOrder->first_name ?: $user->first_name,
+            'last_name' => $pendingOrder->last_name ?: $user->last_name,
+            'email' => $pendingOrder->email ?: $user->email,
+            'username' => $pendingOrder->username ?: $user->username,
+            'source' => 'xendit',
+            'notes' => 'Retry invoice created from dashboard pending-payment flow.',
+        ]);
+
+        $user->forceFill([
+            'xendit_reference' => $externalId,
+        ])->save();
+
+        Cache::store('file')->put('xendit-order:' . $externalId, [
+            'order_id' => $newOrder->id,
+            'user_id' => $user->id,
+            'name' => trim(($pendingOrder->first_name ?: $user->first_name ?: $user->name) . ' ' . ($pendingOrder->last_name ?: $user->last_name)),
+            'email' => $pendingOrder->email ?: $user->email,
+            'username' => $pendingOrder->username ?: $user->username,
+            'payment_method' => strtoupper($validated['payment_method']),
+        ], now()->addDays(30));
+
+        try {
+            Mail::to($pendingOrder->email ?: $user->email)->send(new CoursePaymentPending([
+                'name' => trim(($pendingOrder->first_name ?: $user->first_name ?: $user->name) . ' ' . ($pendingOrder->last_name ?: $user->last_name)),
+                'amount' => number_format((float) $pendingOrder->amount, 2),
+                'reference' => $externalId,
+                'payment_method' => strtoupper($validated['payment_method']),
+                'course_name' => $pendingOrder->course_name ?: 'Build Real Full-Stack Web Apps using AI and Codex',
+                'payment_url' => $response->json('invoice_url'),
+            ]));
+        } catch (\Throwable $exception) {
+            Log::warning('Pending retry checkout email could not be sent.', [
+                'external_id' => $externalId,
+                'email' => $pendingOrder->email ?: $user->email,
+                'message' => $exception->getMessage(),
+            ]);
+        }
+
+        return redirect()->away($response->json('invoice_url'));
     }
 
     private function resolveLessons()
@@ -288,6 +397,82 @@ class CheckoutController extends Controller
             ->orderBy('module_number')
             ->orderBy('id')
             ->get();
+    }
+
+    private function paymentMethodOptions(): array
+    {
+        return [
+            'gcash' => [
+                'title' => 'GCash',
+                'logo' => 'GCash',
+                'logoClass' => 'checkout-method-logo-gcash',
+                'description' => 'Pay with your GCash account via Xendit.',
+            ],
+            'maya' => [
+                'title' => 'PayMaya',
+                'logo' => 'maya',
+                'logoClass' => 'checkout-method-logo-maya',
+                'description' => 'Pay using your PayMaya wallet through Xendit checkout.',
+            ],
+            'grabpay' => [
+                'title' => 'GrabPay',
+                'logo' => 'Grab',
+                'logoClass' => 'checkout-method-logo-grabpay',
+                'description' => 'Pay directly with GrabPay without showing other unrelated payment channels.',
+            ],
+            'qrph' => [
+                'title' => 'QR Payment',
+                'logo' => 'QRPh',
+                'logoClass' => 'checkout-method-logo-qrph',
+                'description' => 'Pay through QRPH if you prefer a QR-based checkout flow.',
+            ],
+        ];
+    }
+
+    private function createXenditInvoice(array $payload)
+    {
+        $secretKey = (string) config('services.xendit.secret_key');
+
+        return Http::withBasicAuth($secretKey, '')
+            ->acceptJson()
+            ->post(rtrim((string) config('services.xendit.base_url', 'https://api.xendit.co'), '/') . '/v2/invoices', [
+                'external_id' => $payload['external_id'],
+                'amount' => $payload['amount'],
+                'currency' => 'PHP',
+                'description' => 'Build Real Full Stack Web Apps using AI and Codex',
+                'invoice_duration' => 86400,
+                'success_redirect_url' => route('checkout.success', ['reference' => $payload['external_id']]),
+                'failure_redirect_url' => route('checkout.failed', ['reference' => $payload['external_id']]),
+                'customer' => [
+                    'given_names' => $payload['first_name'],
+                    'surname' => $payload['last_name'],
+                    'email' => $payload['email'],
+                ],
+                'items' => [
+                    [
+                        'name' => 'Build Real Full Stack Web Apps using AI and Codex',
+                        'quantity' => 1,
+                        'price' => $payload['amount'],
+                        'category' => 'Course',
+                        'url' => url('/'),
+                    ],
+                ],
+                'payment_methods' => $this->paymentMethodMap()[$payload['payment_method']],
+                'metadata' => [
+                    'username' => $payload['username'],
+                    'payment_method' => $payload['payment_method'],
+                ],
+            ]);
+    }
+
+    private function paymentMethodMap(): array
+    {
+        return [
+            'gcash' => ['GCASH'],
+            'maya' => ['PAYMAYA'],
+            'grabpay' => ['GRABPAY'],
+            'qrph' => ['QRPH'],
+        ];
     }
 
     private function runHostingerDeployIfRequested(Request $request): ?\Symfony\Component\HttpFoundation\Response

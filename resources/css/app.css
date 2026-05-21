@@ -3136,6 +3136,11 @@
     padding: 1rem 1.1rem;
 }
 
+.lms-pending-actions {
+    display: grid;
+    gap: 0.75rem;
+}
+
 .lms-pending-button {
     display: inline-flex;
     align-items: center;
@@ -3155,6 +3160,40 @@
     transform: translateY(-2px);
     box-shadow: 0 26px 60px -24px rgba(168, 85, 247, 0.94);
     filter: saturate(1.08);
+}
+
+.lms-pending-retry-form {
+    width: 100%;
+    display: grid;
+    gap: 1rem;
+}
+
+.lms-pending-method-list {
+    display: grid;
+    gap: 0.9rem;
+    width: 100%;
+}
+
+.lms-pending-secondary-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    border: 1px solid rgba(197, 130, 255, 0.22);
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.9rem 1.35rem;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--color-foreground);
+    transition: transform 180ms ease, border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
+    cursor: pointer;
+}
+
+.lms-pending-secondary-button:hover {
+    transform: translateY(-2px);
+    border-color: rgba(230, 168, 255, 0.3);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 24px 50px -34px rgba(168, 85, 247, 0.5);
 }
 
 .lms-success-dot {
