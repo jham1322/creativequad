@@ -93,8 +93,6 @@
                                         type="button"
                                         class="hero-video-poster"
                                         data-hero-video-play
-                                        data-embed-src="https://player.mediadelivery.net/play/657301/0d1f5560-68ca-4f13-bc23-2929271a84ca"
-                                        data-embed-autoplay-src="https://player.mediadelivery.net/play/657301/0d1f5560-68ca-4f13-bc23-2929271a84ca?autoplay=true&muted=true&mute=true"
                                         style="background-image:
                                             linear-gradient(180deg, rgba(3, 9, 18, 0.04), rgba(3, 9, 18, 0.48)),
                                             linear-gradient(135deg, rgba(92, 54, 255, 0.18), rgba(255, 93, 177, 0.14)),
@@ -107,13 +105,17 @@
                                             </svg>
                                         </span>
                                     </button>
-                                    <iframe
+                                    <video
                                         title="Creative Quad course preview"
-                                        loading="lazy"
-                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                                        allowfullscreen
-                                        data-hero-video-iframe
-                                    ></iframe>
+                                        class="hero-video-element"
+                                        data-hero-video-element
+                                        playsinline
+                                        controls
+                                        preload="metadata"
+                                        poster="{{ asset('images/hero/fgg.webp') }}"
+                                    >
+                                        <source src="{{ asset('videos/promo-video.mp4') }}" type="video/mp4">
+                                    </video>
                                 </div>
                             </div>
                         </div>

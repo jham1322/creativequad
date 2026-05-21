@@ -379,7 +379,8 @@
     padding-top: min(56.25%, 68vh);
 }
 
-.hero-video-frame iframe {
+.hero-video-frame iframe,
+.hero-video-frame video {
     position: absolute;
     inset: 0;
     width: 100%;
@@ -390,7 +391,8 @@
     transition: opacity 260ms ease;
 }
 
-.hero-video-frame.is-playing iframe {
+.hero-video-frame.is-playing iframe,
+.hero-video-frame.is-playing video {
     opacity: 1;
     pointer-events: auto;
 }

@@ -123,24 +123,29 @@ const heroVideoStage = document.querySelector('[data-hero-video-stage]');
 const heroVideoShell = document.querySelector('[data-hero-video-shell]');
 const heroVideoFrame = document.querySelector('[data-hero-video-frame]');
 const heroVideoPosterButton = document.querySelector('[data-hero-video-play]');
-const heroVideoIframe = document.querySelector('[data-hero-video-iframe]');
+const heroVideoElement = document.querySelector('[data-hero-video-element]');
 
-const startHeroVideo = (embedSrc) => {
-    if (!(heroVideoIframe instanceof HTMLIFrameElement) || !(heroVideoFrame instanceof HTMLElement)) {
+const startHeroVideo = ({ muted = false } = {}) => {
+    if (!(heroVideoElement instanceof HTMLVideoElement) || !(heroVideoFrame instanceof HTMLElement)) {
         return;
     }
 
-    if (!embedSrc) {
-        return;
-    }
-
-    const separator = embedSrc.includes('?') ? '&' : '?';
-    heroVideoIframe.src = `${embedSrc}${separator}playsinline=1`;
+    heroVideoElement.muted = muted;
     heroVideoFrame.classList.add('is-playing');
+
+    const playback = heroVideoElement.play();
+
+    if (playback && typeof playback.catch === 'function') {
+        playback.catch(() => {
+            if (muted) {
+                heroVideoFrame.classList.remove('is-playing');
+            }
+        });
+    }
 };
 
 heroVideoPosterButton?.addEventListener('click', () => {
-    startHeroVideo(`${heroVideoPosterButton.dataset.embedSrc || ''}?autoplay=1`);
+    startHeroVideo({ muted: false });
 });
 
 if (heroVideoStage && heroVideoShell && !prefersReducedMotion.matches) {
@@ -190,13 +195,11 @@ if (heroVideoStage && heroVideoPosterButton && 'IntersectionObserver' in window)
                 return;
             }
 
-            const autoplaySrc = heroVideoPosterButton.dataset.embedAutoplaySrc || '';
-
-            if (!autoplaySrc) {
+            if (!(heroVideoElement instanceof HTMLVideoElement)) {
                 return;
             }
 
-            startHeroVideo(autoplaySrc);
+            startHeroVideo({ muted: true });
             hasAutoStartedHeroVideo = true;
             autoStartHeroVideo.disconnect();
         },
