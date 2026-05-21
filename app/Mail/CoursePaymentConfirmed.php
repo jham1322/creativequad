@@ -27,7 +27,7 @@ class CoursePaymentConfirmed extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Payment confirmed - your Vibe Coding course access is ready',
+            subject: 'Payment confirmed - your Creative Quad course access is ready',
         );
     }
 
