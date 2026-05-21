@@ -413,7 +413,7 @@ class CheckoutController extends Controller
     {
         return [
             'qrph' => [
-                'title' => 'QR Payment',
+                'title' => 'GCash QR Payment',
                 'logo' => 'QRPh',
                 'logoClass' => 'checkout-method-logo-qrph',
                 'description' => 'Pay through QRPH. It will also accept GCash, Maya, and other QRPh-compatible banking or e-wallet apps.',

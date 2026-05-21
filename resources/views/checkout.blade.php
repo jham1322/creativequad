@@ -186,7 +186,7 @@
                                             <div class="checkout-method-head">
                                                 <span class="checkout-method-control" aria-hidden="true"></span>
                                                 <div class="checkout-method-title-wrap">
-                                                    <span class="checkout-method-title">QR Payment</span>
+                                                    <span class="checkout-method-title">GCash QR Payment</span>
                                                     <span class="checkout-method-logo checkout-method-logo-qrph">QRPh</span>
                                                     <span class="checkout-method-recommend-badge">Recommended</span>
                                                 </div>
