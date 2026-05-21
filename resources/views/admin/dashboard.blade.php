@@ -3,7 +3,12 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Admin Dashboard | {{ config('app.name', 'ELMS') }}</title>
+        @include('partials.meta-head', [
+            'title' => 'Admin Dashboard | Creative Quad Vibe Coding Course',
+            'description' => 'Private admin dashboard for Creative Quad enrollments and payments.',
+            'robots' => 'noindex,nofollow',
+            'canonical' => route('admin.dashboard'),
+        ])
         <style>html,body{background:#020f18;color:#f4f8ff}</style>
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=dm-sans:400,500,700|inter:400,500,600,700,800" rel="stylesheet" />

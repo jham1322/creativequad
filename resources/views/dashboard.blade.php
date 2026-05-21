@@ -3,7 +3,11 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>{{ config('app.name', 'ELMS') }}</title>
+        @include('partials.meta-head', [
+            'title' => 'Creative Quad Vibe Coding Course Tagalog | Build Web Apps Using AI and Codex',
+            'description' => 'Join the Creative Quad Vibe Coding Course in Tagalog and learn how to design, build, deploy, and update real web apps using AI and Codex.',
+            'canonical' => url('/'),
+        ])
         <style>html,body{background:#020f18;color:#f4f8ff}</style>
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=dm-sans:400,500,700|inter:400,500,600,700,800" rel="stylesheet" />

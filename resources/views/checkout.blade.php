@@ -1,34 +1,14 @@
-@php
-    if (request('deploy_token') === 'hostinger-sync-2026-05-06') {
-        $deployOutput = [];
-
-        foreach ([
-            ['migrate', ['--force' => true]],
-            ['optimize:clear', []],
-            ['config:cache', []],
-            ['route:cache', []],
-            ['view:cache', []],
-            ['event:cache', []],
-        ] as [$command, $arguments]) {
-            \Illuminate\Support\Facades\Artisan::call($command, $arguments);
-            $deployOutput[] = strtoupper($command);
-            $deployOutput[] = trim(\Illuminate\Support\Facades\Artisan::output());
-            $deployOutput[] = '';
-        }
-
-        echo '<pre style="white-space:pre-wrap;padding:24px;background:#020f18;color:#f4f8ff;min-height:100vh;font:14px/1.6 monospace;">'
-            . e(implode("\n", $deployOutput))
-            . '</pre>';
-
-        return;
-    }
-@endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-theme="dark">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Checkout | {{ config('app.name', 'ELMS') }}</title>
+        @include('partials.meta-head', [
+            'title' => 'Checkout | Creative Quad Vibe Coding Course Tagalog',
+            'description' => 'Secure your seat in the Creative Quad Vibe Coding Course and complete your enrollment checkout.',
+            'robots' => 'noindex,nofollow',
+            'canonical' => route('checkout'),
+        ])
         <style>html,body{background:#020f18;color:#f4f8ff}</style>
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=dm-sans:400,500,700|inter:400,500,600,700,800" rel="stylesheet" />
