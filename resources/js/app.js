@@ -125,23 +125,42 @@ const heroVideoFrame = document.querySelector('[data-hero-video-frame]');
 const heroVideoPosterButton = document.querySelector('[data-hero-video-play]');
 const heroVideoElement = document.querySelector('[data-hero-video-element]');
 
-const startHeroVideo = ({ muted = false } = {}) => {
+const startHeroVideo = ({ muted = false, fallbackToMuted = false } = {}) => {
     if (!(heroVideoElement instanceof HTMLVideoElement) || !(heroVideoFrame instanceof HTMLElement)) {
-        return;
+        return Promise.resolve(false);
     }
 
     heroVideoElement.muted = muted;
+    heroVideoElement.defaultMuted = muted;
+    heroVideoElement.volume = 1;
     heroVideoFrame.classList.add('is-playing');
 
     const playback = heroVideoElement.play();
 
     if (playback && typeof playback.catch === 'function') {
-        playback.catch(() => {
-            if (muted) {
-                heroVideoFrame.classList.remove('is-playing');
+        return playback.catch(() => {
+            if (fallbackToMuted && !muted) {
+                heroVideoElement.muted = true;
+                heroVideoElement.defaultMuted = true;
+
+                const mutedPlayback = heroVideoElement.play();
+
+                if (mutedPlayback && typeof mutedPlayback.catch === 'function') {
+                    return mutedPlayback.catch(() => {
+                        heroVideoFrame.classList.remove('is-playing');
+                        return false;
+                    });
+                }
+
+                return true;
             }
+
+            heroVideoFrame.classList.remove('is-playing');
+            return false;
         });
     }
+
+    return Promise.resolve(true);
 };
 
 heroVideoPosterButton?.addEventListener('click', () => {
@@ -199,7 +218,7 @@ if (heroVideoStage && heroVideoPosterButton && 'IntersectionObserver' in window)
                 return;
             }
 
-            startHeroVideo({ muted: true });
+            startHeroVideo({ muted: false, fallbackToMuted: true });
             hasAutoStartedHeroVideo = true;
             autoStartHeroVideo.disconnect();
         },
