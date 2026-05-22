@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\AdminStudentAccessNotification;
 use App\Mail\CoursePaymentConfirmed;
 use App\Models\Order;
 use App\Models\User;
@@ -93,7 +94,56 @@ class XenditWebhookController extends Controller
             'dashboard_url' => route('login'),
         ]));
 
+        $this->notifyAdminsOfStudentAccess(
+            name: $resolvedName,
+            email: $email,
+            amount: number_format((float) ($payload['paid_amount'] ?? $payload['amount'] ?? config('services.xendit.course_price', 599)), 2),
+            reference: $externalId,
+            paymentMethod: (string) ($order['payment_method'] ?? strtoupper((string) ($payload['payment_method'] ?? data_get($payload, 'metadata.payment_method', 'Xendit')))),
+            dedupeKey: $externalId,
+        );
+
         return response()->json(['received' => true, 'email_sent' => true]);
+    }
+
+    private function notifyAdminsOfStudentAccess(
+        string $name,
+        string $email,
+        string $amount,
+        string $reference,
+        string $paymentMethod,
+        string $dedupeKey,
+    ): void {
+        $adminEmails = collect(config('admin.emails', []))
+            ->filter(fn ($adminEmail) => is_string($adminEmail) && $adminEmail !== '')
+            ->values();
+
+        if ($adminEmails->isEmpty()) {
+            return;
+        }
+
+        $cacheKey = 'admin-student-access-mail:' . $dedupeKey;
+
+        if (! Cache::store('file')->add($cacheKey, true, now()->addDays(30))) {
+            return;
+        }
+
+        try {
+            Mail::to($adminEmails->all())->send(new AdminStudentAccessNotification([
+                'name' => $name,
+                'email' => $email,
+                'amount' => $amount,
+                'reference' => $reference,
+                'payment_method' => $paymentMethod,
+                'admin_url' => route('admin.login'),
+            ]));
+        } catch (\Throwable $exception) {
+            Log::warning('Admin student access notification could not be sent.', [
+                'email' => $email,
+                'reference' => $reference,
+                'message' => $exception->getMessage(),
+            ]);
+        }
     }
 
     private function resolveEmail(array $payload): ?string

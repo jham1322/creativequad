@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\AdminStudentAccessNotification;
 use App\Mail\CoursePaymentConfirmed;
 use App\Mail\CoursePaymentPending;
 use App\Models\Lesson;
@@ -584,6 +585,55 @@ class CheckoutController extends Controller
             'course_name' => 'Build Real Full-Stack Web Apps using AI and Codex',
             'dashboard_url' => route('login'),
         ]));
+
+        $this->notifyAdminsOfStudentAccess(
+            name: (string) ($order['name'] ?? strtok($resolvedEmail, '@') ?: 'Student'),
+            email: $resolvedEmail,
+            amount: number_format((float) ($invoice['paid_amount'] ?? $invoice['amount'] ?? config('services.xendit.course_price', 599)), 2),
+            reference: $externalId,
+            paymentMethod: (string) ($order['payment_method'] ?? strtoupper((string) ($invoice['payment_method'] ?? 'Xendit'))),
+            dedupeKey: $externalId,
+        );
+    }
+
+    private function notifyAdminsOfStudentAccess(
+        string $name,
+        string $email,
+        string $amount,
+        string $reference,
+        string $paymentMethod,
+        string $dedupeKey,
+    ): void {
+        $adminEmails = collect(config('admin.emails', []))
+            ->filter(fn ($adminEmail) => is_string($adminEmail) && $adminEmail !== '')
+            ->values();
+
+        if ($adminEmails->isEmpty()) {
+            return;
+        }
+
+        $cacheKey = 'admin-student-access-mail:' . $dedupeKey;
+
+        if (! Cache::store('file')->add($cacheKey, true, now()->addDays(30))) {
+            return;
+        }
+
+        try {
+            Mail::to($adminEmails->all())->send(new AdminStudentAccessNotification([
+                'name' => $name,
+                'email' => $email,
+                'amount' => $amount,
+                'reference' => $reference,
+                'payment_method' => $paymentMethod,
+                'admin_url' => route('admin.login'),
+            ]));
+        } catch (\Throwable $exception) {
+            Log::warning('Admin student access notification could not be sent.', [
+                'email' => $email,
+                'reference' => $reference,
+                'message' => $exception->getMessage(),
+            ]);
+        }
     }
 
     private function cleanupResolvedPendingOrders(User $user, string $keepReference): void

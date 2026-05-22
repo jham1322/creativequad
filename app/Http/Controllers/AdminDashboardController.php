@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Mail\AdminManualEnrollmentCredentials;
+use App\Mail\AdminStudentAccessNotification;
 use App\Models\Order;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Throwable;
@@ -140,6 +142,15 @@ class AdminDashboardController extends Controller
                 'course_name' => self::COURSE_NAME,
                 'login_url' => route('login'),
             ]));
+
+            $this->notifyAdminsOfStudentAccess(
+                name: $fullName !== '' ? $fullName : $firstName,
+                email: $email,
+                amount: number_format($coursePrice, 2),
+                reference: $reference,
+                paymentMethod: 'MANUAL_ENROLL',
+                dedupeKey: $reference,
+            );
         } catch (Throwable $exception) {
             report($exception);
 
@@ -182,6 +193,15 @@ class AdminDashboardController extends Controller
             'paid_at' => $order->paid_at ?? now(),
             'source' => 'manual',
         ])->save();
+
+        $this->notifyAdminsOfStudentAccess(
+            name: $order->display_name !== '' ? $order->display_name : ($order->email ?: 'Student'),
+            email: (string) $order->email,
+            amount: number_format((float) $order->amount, 2),
+            reference: (string) ($order->xendit_reference ?: ('manual-approval-' . $order->id)),
+            paymentMethod: (string) ($order->payment_method ?: 'OFFLINE_GCASH'),
+            dedupeKey: 'approved-order-' . $order->id,
+        );
 
         return back()->with('admin_status', 'Pending order approved successfully.');
     }
@@ -277,5 +297,39 @@ class AdminDashboardController extends Controller
                 'deleted_at' => now(),
                 'notes' => 'Automatically hidden after admin manually granted course access.',
             ]);
+    }
+
+    private function notifyAdminsOfStudentAccess(
+        string $name,
+        string $email,
+        string $amount,
+        string $reference,
+        string $paymentMethod,
+        string $dedupeKey,
+    ): void {
+        $adminEmails = collect(config('admin.emails', []))
+            ->filter(fn ($adminEmail) => is_string($adminEmail) && $adminEmail !== '')
+            ->values();
+
+        if ($adminEmails->isEmpty()) {
+            return;
+        }
+
+        try {
+            Mail::to($adminEmails->all())->send(new AdminStudentAccessNotification([
+                'name' => $name,
+                'email' => $email,
+                'amount' => $amount,
+                'reference' => $reference,
+                'payment_method' => $paymentMethod,
+                'admin_url' => route('admin.login'),
+            ]));
+        } catch (Throwable $exception) {
+            Log::warning('Admin student access notification could not be sent.', [
+                'email' => $email,
+                'reference' => $reference,
+                'message' => $exception->getMessage(),
+            ]);
+        }
     }
 }
