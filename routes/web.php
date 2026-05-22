@@ -22,6 +22,7 @@ Route::get('/admin/login', [AdminAuthController::class, 'showLogin'])->name('adm
 Route::post('/admin/login', [AdminAuthController::class, 'login'])->name('admin.login.store');
 Route::post('/admin/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
 Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+Route::post('/admin/students/enroll', [AdminDashboardController::class, 'enroll'])->name('admin.students.enroll');
 Route::post('/admin/orders/{order}/approve', [AdminDashboardController::class, 'approve'])->name('admin.orders.approve');
 Route::delete('/admin/orders/{order}', [AdminDashboardController::class, 'destroy'])->name('admin.orders.destroy');
 Route::get('/forgot-password', [AuthController::class, 'showForgotPassword'])->name('password.request');

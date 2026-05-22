@@ -4441,6 +4441,17 @@
     color: rgba(244, 248, 255, 0.72);
 }
 
+.admin-inline-secret {
+    display: inline-flex;
+    margin-left: 0.35rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.08);
+    padding: 0.2rem 0.65rem;
+    font-weight: 700;
+    color: #fff;
+}
+
 .admin-panel-grid {
     display: grid;
     gap: 1.25rem;
@@ -4449,6 +4460,77 @@
 
 .admin-panel {
     padding: 1.3rem;
+}
+
+.admin-enroll-form {
+    margin-top: 1.2rem;
+}
+
+.admin-enroll-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.admin-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+}
+
+.admin-field span {
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: rgba(244, 248, 255, 0.76);
+}
+
+.admin-input {
+    width: 100%;
+    border-radius: 1.15rem;
+    border: 1px solid rgba(197, 130, 255, 0.16);
+    background: rgba(255, 255, 255, 0.04);
+    padding: 0.95rem 1rem;
+    font-size: 0.96rem;
+    color: #fff;
+    outline: none;
+    transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+.admin-input::placeholder {
+    color: rgba(244, 248, 255, 0.36);
+}
+
+.admin-input:focus {
+    border-color: rgba(197, 130, 255, 0.4);
+    box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.12);
+    transform: translateY(-1px);
+}
+
+.admin-input-error {
+    border-color: rgba(255, 110, 146, 0.56);
+}
+
+.admin-field-error {
+    color: rgba(255, 169, 193, 0.92);
+    font-size: 0.84rem;
+    line-height: 1.55;
+}
+
+.admin-enroll-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.admin-enroll-note {
+    max-width: 46rem;
+    font-size: 0.92rem;
+    line-height: 1.7;
+    color: rgba(244, 248, 255, 0.68);
 }
 
 .admin-panel-head {
@@ -4542,12 +4624,17 @@
 
 @media (max-width: 960px) {
     .admin-topbar,
-    .admin-panel-head {
+    .admin-panel-head,
+    .admin-enroll-actions {
         flex-direction: column;
         align-items: start;
     }
 
     .admin-metrics-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-enroll-grid {
         grid-template-columns: 1fr;
     }
 }

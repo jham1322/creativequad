@@ -2,14 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\AdminManualEnrollmentCredentials;
 use App\Models\Order;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
+use Throwable;
 use Illuminate\View\View;
 
 class AdminDashboardController extends Controller
 {
+    private const COURSE_SLUG = 'build-real-full-stack-web-apps-using-ai-and-codex';
+
+    private const COURSE_NAME = 'Build Real Full-Stack Web Apps using AI and Codex';
+
     public function index(Request $request): View|RedirectResponse
     {
         if ($redirect = $this->ensureAdmin($request)) {
@@ -46,6 +54,104 @@ class AdminDashboardController extends Controller
         ]);
     }
 
+    public function enroll(Request $request): RedirectResponse
+    {
+        if ($redirect = $this->ensureAdmin($request)) {
+            return $redirect;
+        }
+
+        $validated = $request->validate([
+            'first_name' => ['required', 'string', 'max:255'],
+            'last_name' => ['nullable', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255'],
+            'username' => ['required', 'string', 'min:3', 'max:40', 'alpha_dash'],
+        ]);
+
+        $email = strtolower(trim($validated['email']));
+        $username = strtolower(trim($validated['username']));
+        $firstName = trim($validated['first_name']);
+        $lastName = trim((string) ($validated['last_name'] ?? ''));
+        $fullName = trim($firstName . ' ' . $lastName);
+
+        $existingUser = User::query()->where('email', $email)->first();
+        $usernameOwner = User::query()->where('username', $username)->first();
+
+        if ($usernameOwner instanceof User && (! $existingUser || $usernameOwner->id !== $existingUser->id)) {
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'admin' => 'That username is already being used by another student account.',
+                ]);
+        }
+
+        if ($existingUser instanceof User && $existingUser->purchased_at !== null) {
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'admin' => 'That student already has active course access.',
+                ]);
+        }
+
+        $temporaryPassword = Str::upper(Str::random(4)) . '-' . Str::random(8);
+        $reference = 'manual-enroll-' . Str::uuid();
+        $coursePrice = (float) config('services.xendit.course_price', 599);
+
+        $user = $existingUser ?? new User();
+        $user->forceFill([
+            'name' => $fullName !== '' ? $fullName : $firstName,
+            'first_name' => $firstName,
+            'last_name' => $lastName,
+            'email' => $email,
+            'username' => $username,
+            'password' => $temporaryPassword,
+            'xendit_reference' => $reference,
+            'course_slug' => self::COURSE_SLUG,
+            'purchased_at' => now(),
+            'email_verified_at' => $user->email_verified_at ?? now(),
+        ])->save();
+
+        Order::query()->create([
+            'user_id' => $user->id,
+            'course_slug' => self::COURSE_SLUG,
+            'course_name' => self::COURSE_NAME,
+            'amount' => $coursePrice,
+            'currency' => 'PHP',
+            'status' => 'approved',
+            'payment_method' => 'MANUAL_ENROLL',
+            'xendit_reference' => $reference,
+            'first_name' => $firstName,
+            'last_name' => $lastName,
+            'email' => $email,
+            'username' => $username,
+            'paid_at' => now(),
+            'approved_at' => now(),
+            'source' => 'admin_manual_enroll',
+            'notes' => 'Student manually enrolled by admin and granted direct course access.',
+        ]);
+
+        $this->cleanupPendingOrdersFor($user, $email, $reference);
+
+        try {
+            Mail::to($email)->send(new AdminManualEnrollmentCredentials([
+                'name' => $firstName,
+                'email' => $email,
+                'username' => $username,
+                'temporary_password' => $temporaryPassword,
+                'course_name' => self::COURSE_NAME,
+                'login_url' => route('login'),
+            ]));
+        } catch (Throwable $exception) {
+            report($exception);
+
+            return back()
+                ->with('admin_status', 'Student was enrolled successfully, but the credential email could not be sent.')
+                ->with('admin_temp_email', $email)
+                ->with('admin_temp_password', $temporaryPassword);
+        }
+
+        return back()->with('admin_status', 'Student enrolled successfully and the temporary password was emailed.');
+    }
+
     public function approve(Request $request, Order $order): RedirectResponse
     {
         if ($redirect = $this->ensureAdmin($request)) {
@@ -66,6 +172,8 @@ class AdminDashboardController extends Controller
                 'purchased_at' => $user->purchased_at ?? now(),
                 'email_verified_at' => $user->email_verified_at ?? now(),
             ])->save();
+
+            $this->cleanupPendingOrdersFor($user, $order->email, (string) $order->xendit_reference);
         }
 
         $order->forceFill([
@@ -146,5 +254,28 @@ class AdminDashboardController extends Controller
                     'notes' => 'Automatically hidden after a paid order was detected for the same email.',
                 ]);
         }
+    }
+
+    private function cleanupPendingOrdersFor(User $user, ?string $email, string $keepReference): void
+    {
+        Order::query()
+            ->where('status', 'pending')
+            ->where(function ($query) use ($user, $email): void {
+                $query->where('user_id', $user->id);
+
+                if ($email) {
+                    $query->orWhere('email', $email);
+                }
+            })
+            ->where(function ($query) use ($keepReference): void {
+                $query
+                    ->whereNull('xendit_reference')
+                    ->orWhere('xendit_reference', '!=', $keepReference);
+            })
+            ->update([
+                'status' => 'deleted',
+                'deleted_at' => now(),
+                'notes' => 'Automatically hidden after admin manually granted course access.',
+            ]);
     }
 }

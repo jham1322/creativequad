@@ -48,6 +48,14 @@
                     </div>
                 @endif
 
+                @if (session('admin_temp_password'))
+                    <div class="mt-6 rounded-[1.25rem] border border-amber-400/22 bg-amber-500/10 px-5 py-4 text-sm leading-7 text-amber-100">
+                        We could not send the temporary password email. Share these credentials manually with
+                        <strong>{{ session('admin_temp_email') }}</strong>:
+                        <span class="admin-inline-secret">{{ session('admin_temp_password') }}</span>
+                    </div>
+                @endif
+
                 @if ($errors->has('admin'))
                     <div class="mt-6 rounded-[1.25rem] border border-red-400/22 bg-red-500/10 px-5 py-4 text-sm leading-7 text-red-100">
                         {{ $errors->first('admin') }}
@@ -72,6 +80,91 @@
                         <h2 class="admin-metric-value">{{ $pendingOrdersCount }}</h2>
                         <p class="admin-metric-meta">Orders waiting for Xendit or manual approval</p>
                     </article>
+                </section>
+
+                <section class="admin-panel mt-6">
+                    <div class="admin-panel-head">
+                        <div>
+                            <p class="text-sm font-medium uppercase tracking-[0.24em] text-primary">Manual Enrollment</p>
+                            <h3 class="mt-2 text-2xl font-semibold tracking-tight text-foreground">Add or enroll a student manually</h3>
+                            <p class="mt-3 max-w-3xl text-sm leading-7 text-muted-foreground">
+                                Create the student account, unlock course access immediately, and email a temporary password for first login.
+                            </p>
+                        </div>
+                    </div>
+
+                    <form method="POST" action="{{ route('admin.students.enroll') }}" class="admin-enroll-form">
+                        @csrf
+                        <div class="admin-enroll-grid">
+                            <label class="admin-field">
+                                <span>First name</span>
+                                <input
+                                    type="text"
+                                    name="first_name"
+                                    value="{{ old('first_name') }}"
+                                    placeholder="Juan"
+                                    class="admin-input @if($errors->has('first_name')) admin-input-error @endif"
+                                    required
+                                >
+                                @error('first_name')
+                                    <small class="admin-field-error">{{ $message }}</small>
+                                @enderror
+                            </label>
+
+                            <label class="admin-field">
+                                <span>Last name</span>
+                                <input
+                                    type="text"
+                                    name="last_name"
+                                    value="{{ old('last_name') }}"
+                                    placeholder="Dela Cruz"
+                                    class="admin-input @if($errors->has('last_name')) admin-input-error @endif"
+                                >
+                                @error('last_name')
+                                    <small class="admin-field-error">{{ $message }}</small>
+                                @enderror
+                            </label>
+
+                            <label class="admin-field">
+                                <span>Email</span>
+                                <input
+                                    type="email"
+                                    name="email"
+                                    value="{{ old('email') }}"
+                                    placeholder="student@example.com"
+                                    class="admin-input @if($errors->has('email')) admin-input-error @endif"
+                                    required
+                                >
+                                @error('email')
+                                    <small class="admin-field-error">{{ $message }}</small>
+                                @enderror
+                            </label>
+
+                            <label class="admin-field">
+                                <span>Username</span>
+                                <input
+                                    type="text"
+                                    name="username"
+                                    value="{{ old('username') }}"
+                                    placeholder="studentusername"
+                                    class="admin-input @if($errors->has('username')) admin-input-error @endif"
+                                    required
+                                >
+                                @error('username')
+                                    <small class="admin-field-error">{{ $message }}</small>
+                                @enderror
+                            </label>
+                        </div>
+
+                        <div class="admin-enroll-actions">
+                            <p class="admin-enroll-note">
+                                The student will appear in the purchased accounts list right away and receive a temporary password by email.
+                            </p>
+                            <button type="submit" class="admin-action-button admin-action-button-primary">
+                                Enroll student now
+                            </button>
+                        </div>
+                    </form>
                 </section>
 
                 <section class="admin-panel-grid">
