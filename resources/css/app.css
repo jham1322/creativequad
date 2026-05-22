@@ -3740,6 +3740,10 @@
     color: var(--color-foreground);
 }
 
+.lms-hosting-title-promo {
+    max-width: 14ch;
+}
+
 .lms-hosting-title span {
     display: inline-block;
     background: linear-gradient(135deg, #fff 0%, #d2b9ff 36%, #8ec5ff 70%, #ff7fcd 100%);
@@ -4292,6 +4296,10 @@
     .lms-hosting-title {
         max-width: none;
         font-size: 1.9rem;
+    }
+
+    .lms-hosting-title-promo {
+        max-width: none;
     }
 
     .lms-hosting-price-row,
