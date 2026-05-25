@@ -4,12 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Mail\AdminManualEnrollmentCredentials;
 use App\Mail\AdminStudentAccessNotification;
+use App\Models\AnalyticsPageView;
+use App\Models\AnalyticsVisitor;
 use App\Models\Order;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Throwable;
 use Illuminate\View\View;
@@ -53,7 +57,19 @@ class AdminDashboardController extends Controller
             'pendingOrdersCount' => $pendingOrders->count(),
             'students' => User::query()->whereNotNull('purchased_at')->latest('purchased_at')->get(),
             'pendingOrders' => $pendingOrders,
+            'analytics' => $this->analyticsSummaryData(),
         ]);
+    }
+
+    public function analyticsSummary(Request $request): JsonResponse|RedirectResponse
+    {
+        if ($redirect = $this->ensureAdmin($request)) {
+            return response()->json([
+                'message' => 'Unauthorized.',
+            ], 403);
+        }
+
+        return response()->json($this->analyticsSummaryData());
     }
 
     public function enroll(Request $request): RedirectResponse
@@ -297,6 +313,89 @@ class AdminDashboardController extends Controller
                 'deleted_at' => now(),
                 'notes' => 'Automatically hidden after admin manually granted course access.',
             ]);
+    }
+
+    private function analyticsSummaryData(): array
+    {
+        if (! Schema::hasTable('analytics_visitors') || ! Schema::hasTable('analytics_page_views')) {
+            return [
+                'live_visitors' => 0,
+                'unique_visitors_today' => 0,
+                'page_views_today' => 0,
+                'unique_visitors_7d' => 0,
+                'total_unique_visitors' => 0,
+                'top_pages' => [],
+                'recent_activity' => [],
+                'updated_at' => now()->toIso8601String(),
+                'updated_at_label' => 'Just now',
+            ];
+        }
+
+        $now = now();
+        $todayStart = $now->copy()->startOfDay();
+        $weekStart = $now->copy()->subDays(6)->startOfDay();
+        $liveThreshold = $now->copy()->subMinutes(5);
+
+        $topPages = AnalyticsPageView::query()
+            ->select('path', 'route_name')
+            ->selectRaw('COUNT(*) as views')
+            ->selectRaw('COUNT(DISTINCT visitor_key) as unique_visitors')
+            ->where('viewed_at', '>=', $weekStart)
+            ->groupBy('path', 'route_name')
+            ->orderByDesc('views')
+            ->limit(5)
+            ->get()
+            ->map(function (AnalyticsPageView $pageView): array {
+                return [
+                    'label' => $this->formatAnalyticsPageLabel($pageView->path, $pageView->route_name),
+                    'path' => $pageView->path,
+                    'views' => (int) $pageView->views,
+                    'unique_visitors' => (int) $pageView->unique_visitors,
+                ];
+            })
+            ->values()
+            ->all();
+
+        $recentActivity = AnalyticsPageView::query()
+            ->latest('viewed_at')
+            ->limit(8)
+            ->get()
+            ->map(function (AnalyticsPageView $pageView) use ($now): array {
+                return [
+                    'label' => $this->formatAnalyticsPageLabel($pageView->path, $pageView->route_name),
+                    'path' => $pageView->path,
+                    'viewed_at' => optional($pageView->viewed_at)->toIso8601String(),
+                    'viewed_at_label' => optional($pageView->viewed_at)?->diffForHumans($now, short: true) ?? 'Just now',
+                ];
+            })
+            ->values()
+            ->all();
+
+        return [
+            'live_visitors' => AnalyticsVisitor::query()->where('last_seen_at', '>=', $liveThreshold)->count(),
+            'unique_visitors_today' => AnalyticsPageView::query()->where('viewed_at', '>=', $todayStart)->distinct('visitor_key')->count('visitor_key'),
+            'page_views_today' => AnalyticsPageView::query()->where('viewed_at', '>=', $todayStart)->count(),
+            'unique_visitors_7d' => AnalyticsPageView::query()->where('viewed_at', '>=', $weekStart)->distinct('visitor_key')->count('visitor_key'),
+            'total_unique_visitors' => AnalyticsVisitor::query()->count(),
+            'top_pages' => $topPages,
+            'recent_activity' => $recentActivity,
+            'updated_at' => $now->toIso8601String(),
+            'updated_at_label' => 'Updated ' . $now->diffForHumans(),
+        ];
+    }
+
+    private function formatAnalyticsPageLabel(?string $path, ?string $routeName): string
+    {
+        return match (true) {
+            $routeName === 'checkout' => 'Checkout page',
+            $routeName === 'login' => 'Student login',
+            $routeName === 'password.request' => 'Forgot password',
+            $routeName === 'lms.dashboard' => 'LMS dashboard',
+            $path === '/' => 'Homepage',
+            $path === '/checkout/success' => 'Checkout success',
+            $path === '/checkout/failed' => 'Checkout failed',
+            default => $path ?: 'Unknown page',
+        };
     }
 
     private function notifyAdminsOfStudentAccess(

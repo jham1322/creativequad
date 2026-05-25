@@ -119,6 +119,7 @@ lessonItems.forEach((lesson) => {
 
 const countdownRoot = document.getElementById('pricing-countdown');
 const passwordToggles = document.querySelectorAll('[data-password-toggle]');
+const adminAnalyticsRoot = document.querySelector('[data-admin-analytics]');
 const heroVideoStage = document.querySelector('[data-hero-video-stage]');
 const heroVideoShell = document.querySelector('[data-hero-video-shell]');
 const heroVideoFrame = document.querySelector('[data-hero-video-frame]');
@@ -288,3 +289,111 @@ passwordToggles.forEach((toggle) => {
         }
     });
 });
+
+if (adminAnalyticsRoot instanceof HTMLElement) {
+    const analyticsEndpoint = adminAnalyticsRoot.dataset.analyticsEndpoint;
+    const updatedAtEl = adminAnalyticsRoot.querySelector('[data-analytics-updated-at]');
+    const topPagesBody = adminAnalyticsRoot.querySelector('[data-analytics-top-pages]');
+    const recentActivityBody = adminAnalyticsRoot.querySelector('[data-analytics-recent-activity]');
+    let analyticsRefreshTimer;
+
+    const formatNumber = (value) => new Intl.NumberFormat().format(Number(value || 0));
+
+    const renderMetric = (key, value) => {
+        const metricEl = adminAnalyticsRoot.querySelector(`[data-analytics-metric="${key}"]`);
+
+        if (metricEl) {
+            metricEl.textContent = formatNumber(value);
+        }
+    };
+
+    const renderRows = (target, rows, builder, emptyMessage, colspan) => {
+        if (!(target instanceof HTMLElement)) {
+            return;
+        }
+
+        if (!Array.isArray(rows) || rows.length === 0) {
+            target.innerHTML = `<tr><td colspan="${colspan}" class="admin-empty-state">${emptyMessage}</td></tr>`;
+            return;
+        }
+
+        target.innerHTML = rows.map(builder).join('');
+    };
+
+    const syncAnalytics = (payload) => {
+        if (!payload || typeof payload !== 'object') {
+            return;
+        }
+
+        renderMetric('live_visitors', payload.live_visitors);
+        renderMetric('unique_visitors_today', payload.unique_visitors_today);
+        renderMetric('page_views_today', payload.page_views_today);
+        renderMetric('unique_visitors_7d', payload.unique_visitors_7d);
+
+        const totalMetricMeta = adminAnalyticsRoot.querySelector('[data-analytics-metric="unique_visitors_7d"]')?.nextElementSibling;
+
+        if (totalMetricMeta instanceof HTMLElement && typeof payload.total_unique_visitors !== 'undefined') {
+            totalMetricMeta.textContent = `${formatNumber(payload.total_unique_visitors)} total unique visitors recorded`;
+        }
+
+        if (updatedAtEl && payload.updated_at_label) {
+            updatedAtEl.textContent = payload.updated_at_label;
+        }
+
+        renderRows(
+            topPagesBody,
+            payload.top_pages,
+            (page) => `
+                <tr>
+                    <td>${page.label}</td>
+                    <td>${formatNumber(page.views)}</td>
+                    <td>${formatNumber(page.unique_visitors)}</td>
+                </tr>
+            `,
+            'No analytics data yet. Visits will appear here once people start browsing the site.',
+            3,
+        );
+
+        renderRows(
+            recentActivityBody,
+            payload.recent_activity,
+            (activity) => `
+                <tr>
+                    <td>${activity.label}</td>
+                    <td>${activity.viewed_at_label}</td>
+                </tr>
+            `,
+            'No recent visitor activity yet.',
+            2,
+        );
+    };
+
+    const fetchAnalytics = async () => {
+        if (!analyticsEndpoint) {
+            return;
+        }
+
+        try {
+            const response = await window.fetch(analyticsEndpoint, {
+                headers: {
+                    Accept: 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                credentials: 'same-origin',
+            });
+
+            if (!response.ok) {
+                return;
+            }
+
+            const payload = await response.json();
+            syncAnalytics(payload);
+        } catch (_error) {
+            // Keep the last rendered analytics state if polling fails temporarily.
+        }
+    };
+
+    fetchAnalytics();
+    analyticsRefreshTimer = window.setInterval(fetchAnalytics, 30000);
+    window.addEventListener('beforeunload', () => window.clearInterval(analyticsRefreshTimer), { once: true });
+}

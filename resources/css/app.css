@@ -4410,6 +4410,13 @@
     margin-top: 1.5rem;
 }
 
+.admin-analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1rem;
+    margin-top: 1.35rem;
+}
+
 .admin-metric-card,
 .admin-panel {
     border-radius: 1.8rem;
@@ -4424,6 +4431,10 @@
 
 .admin-metric-card {
     padding: 1.25rem;
+}
+
+.admin-analytics-card {
+    min-height: 100%;
 }
 
 .admin-metric-label {
@@ -4449,6 +4460,10 @@
     color: rgba(244, 248, 255, 0.72);
 }
 
+.admin-analytics-stamp {
+    white-space: nowrap;
+}
+
 .admin-inline-secret {
     display: inline-flex;
     margin-left: 0.35rem;
@@ -4464,6 +4479,10 @@
     display: grid;
     gap: 1.25rem;
     margin-top: 1.5rem;
+}
+
+.admin-analytics-panel {
+    min-height: 100%;
 }
 
 .admin-panel {
@@ -4639,6 +4658,10 @@
     }
 
     .admin-metrics-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-analytics-grid {
         grid-template-columns: 1fr;
     }
 

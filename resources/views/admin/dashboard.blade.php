@@ -82,6 +82,121 @@
                     </article>
                 </section>
 
+                <section
+                    class="admin-panel mt-6"
+                    data-admin-analytics
+                    data-analytics-endpoint="{{ route('admin.analytics.summary') }}"
+                >
+                    <div class="admin-panel-head">
+                        <div>
+                            <p class="text-sm font-medium uppercase tracking-[0.24em] text-primary">Realtime Analytics</p>
+                            <h3 class="mt-2 text-2xl font-semibold tracking-tight text-foreground">See unique visits and live traffic</h3>
+                            <p class="mt-3 max-w-3xl text-sm leading-7 text-muted-foreground">
+                                Track active visitors, today’s unique visits, page views, and the pages people are opening most often.
+                            </p>
+                        </div>
+                        <div class="admin-chip admin-analytics-stamp" data-analytics-updated-at>
+                            {{ $analytics['updated_at_label'] }}
+                        </div>
+                    </div>
+
+                    <div class="admin-analytics-grid">
+                        <article class="admin-metric-card admin-analytics-card">
+                            <p class="admin-metric-label">Live visitors</p>
+                            <h3 class="admin-metric-value" data-analytics-metric="live_visitors">{{ number_format($analytics['live_visitors']) }}</h3>
+                            <p class="admin-metric-meta">Active in the last 5 minutes</p>
+                        </article>
+
+                        <article class="admin-metric-card admin-analytics-card">
+                            <p class="admin-metric-label">Unique today</p>
+                            <h3 class="admin-metric-value" data-analytics-metric="unique_visitors_today">{{ number_format($analytics['unique_visitors_today']) }}</h3>
+                            <p class="admin-metric-meta">Distinct visitors since midnight</p>
+                        </article>
+
+                        <article class="admin-metric-card admin-analytics-card">
+                            <p class="admin-metric-label">Page views today</p>
+                            <h3 class="admin-metric-value" data-analytics-metric="page_views_today">{{ number_format($analytics['page_views_today']) }}</h3>
+                            <p class="admin-metric-meta">Tracked page loads today</p>
+                        </article>
+
+                        <article class="admin-metric-card admin-analytics-card">
+                            <p class="admin-metric-label">Unique visitors 7d</p>
+                            <h3 class="admin-metric-value" data-analytics-metric="unique_visitors_7d">{{ number_format($analytics['unique_visitors_7d']) }}</h3>
+                            <p class="admin-metric-meta">
+                                {{ number_format($analytics['total_unique_visitors']) }} total unique visitors recorded
+                            </p>
+                        </article>
+                    </div>
+
+                    <div class="admin-panel-grid mt-6">
+                        <article class="admin-panel admin-analytics-panel">
+                            <div class="admin-panel-head">
+                                <div>
+                                    <p class="text-sm font-medium uppercase tracking-[0.24em] text-primary">Top Pages</p>
+                                    <h4 class="mt-2 text-xl font-semibold tracking-tight text-foreground">Most visited in the last 7 days</h4>
+                                </div>
+                            </div>
+
+                            <div class="admin-table-wrap">
+                                <table class="admin-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Page</th>
+                                            <th>Views</th>
+                                            <th>Unique Visitors</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody data-analytics-top-pages>
+                                        @forelse ($analytics['top_pages'] as $page)
+                                            <tr>
+                                                <td>{{ $page['label'] }}</td>
+                                                <td>{{ number_format($page['views']) }}</td>
+                                                <td>{{ number_format($page['unique_visitors']) }}</td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="3" class="admin-empty-state">No analytics data yet. Visits will appear here once people start browsing the site.</td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </article>
+
+                        <article class="admin-panel admin-analytics-panel">
+                            <div class="admin-panel-head">
+                                <div>
+                                    <p class="text-sm font-medium uppercase tracking-[0.24em] text-primary">Recent Activity</p>
+                                    <h4 class="mt-2 text-xl font-semibold tracking-tight text-foreground">Latest tracked visits</h4>
+                                </div>
+                            </div>
+
+                            <div class="admin-table-wrap">
+                                <table class="admin-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Page</th>
+                                            <th>Last Seen</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody data-analytics-recent-activity>
+                                        @forelse ($analytics['recent_activity'] as $activity)
+                                            <tr>
+                                                <td>{{ $activity['label'] }}</td>
+                                                <td>{{ $activity['viewed_at_label'] }}</td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="2" class="admin-empty-state">No recent visitor activity yet.</td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+
                 <section class="admin-panel mt-6">
                     <div class="admin-panel-head">
                         <div>
