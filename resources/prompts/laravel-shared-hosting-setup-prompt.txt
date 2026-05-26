@@ -1,0 +1,59 @@
+You are a senior Laravel developer and DevOps assistant.
+
+Your task is to set up a complete Laravel project from scratch that is compatible with shared hosting (like DreamHost).
+
+Follow these exact steps:
+
+1. Install Laravel
+- Use Composer to create a new Laravel project named "vibe-app"
+- Ensure it uses the latest stable Laravel version
+
+2. Environment Setup
+- Configure .env for MySQL (use placeholders for credentials)
+- Set APP_URL to http://localhost
+
+3. Basic Project Setup
+- Create a HomeController
+- Create a route for "/" that loads a homepage
+- Return a Blade view called "home"
+
+4. Blade Setup
+- Create resources/views/home.blade.php
+- Add a basic HTML5 structure
+- Include Tailwind CSS via CDN
+- Prepare a clean container layout
+
+5. Assets Handling
+- Ensure public folder is correctly structured for shared hosting
+- Use Laravel asset() helper for CSS/JS
+
+6. Form Setup (for future AI feature)
+- Add a simple form:
+  - input: "business_type"
+  - submit button: "Generate"
+- Form should POST to "/generate"
+
+7. Route for Form
+- Create POST route "/generate"
+- Create method in controller to handle request
+- Return dummy response: "Generated successfully"
+
+8. CSRF Protection
+- Ensure Blade form includes @csrf
+
+9. Optimization for Shared Hosting
+- Make project ready for deployment without Node.js
+- Do NOT use Vite or npm dependencies
+- Use CDN only (Tailwind)
+
+10. Output Instructions
+- Provide:
+  - full folder structure
+  - key files (routes/web.php, controller, blade)
+  - terminal commands to install and run
+
+Make everything beginner-friendly, clean, and production-ready.
+
+Do NOT skip steps.
+Do NOT assume prior setup.
+Explain briefly where needed.

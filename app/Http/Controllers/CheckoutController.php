@@ -17,9 +17,11 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class CheckoutController extends Controller
 {
@@ -265,6 +267,28 @@ class CheckoutController extends Controller
             'paymentMethodOptions' => $this->paymentMethodOptions(),
             'offlineGcashDetails' => $this->offlineGcashDetails(),
             'lessons' => $this->resolveLessons(),
+        ]);
+    }
+
+    public function resourcePrompt(Request $request): BinaryFileResponse|RedirectResponse
+    {
+        if (! Auth::check()) {
+            return redirect()
+                ->route('login')
+                ->withErrors([
+                    'login' => 'Please log in to access your course resources.',
+                ]);
+        }
+
+        $path = resource_path('prompts/laravel-shared-hosting-setup-prompt.txt');
+
+        if (! File::exists($path)) {
+            abort(404);
+        }
+
+        return response()->file($path, [
+            'Content-Type' => 'text/plain; charset=UTF-8',
+            'Content-Disposition' => 'inline; filename="laravel-shared-hosting-setup-prompt.txt"',
         ]);
     }
 

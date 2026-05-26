@@ -31,6 +31,7 @@ Route::post('/forgot-password', [AuthController::class, 'sendResetLink'])->name(
 Route::get('/reset-password/{token}', [AuthController::class, 'showResetPassword'])->name('password.reset');
 Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.update');
 Route::get('/lms/dashboard', [CheckoutController::class, 'dashboard'])->name('lms.dashboard');
+Route::get('/lms/resources/laravel-shared-hosting-setup-prompt', [CheckoutController::class, 'resourcePrompt'])->name('lms.resources.laravel-setup-prompt');
 Route::post('/lms/pending-payment/retry', [CheckoutController::class, 'retryPendingPayment'])->name('lms.pending-payment.retry');
 Route::post('/webhooks/xendit/invoice', [XenditWebhookController::class, 'invoice'])
     ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\PreventRequestForgery::class])

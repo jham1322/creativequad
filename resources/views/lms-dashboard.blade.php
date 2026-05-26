@@ -344,6 +344,22 @@
                             </a>
                         </article>
 
+                        <article class="lms-resource-card lms-project-card">
+                            <p class="text-xs font-medium uppercase tracking-[0.22em] text-primary">Prompt File</p>
+                            <h4 class="mt-3 text-2xl font-semibold tracking-tight text-foreground">Laravel shared hosting setup prompt</h4>
+                            <p class="mt-5 text-sm leading-7 text-muted-foreground">
+                                Open this copy-ready prompt when you need Codex or ChatGPT to scaffold a fresh Laravel app that works well on shared hosting like DreamHost.
+                            </p>
+                            <a
+                                href="{{ route('lms.resources.laravel-setup-prompt') }}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="lms-project-link"
+                            >
+                                Open Laravel setup prompt →
+                            </a>
+                        </article>
+
                         <article class="lms-resource-card">
                             <p class="text-xs font-medium uppercase tracking-[0.22em] text-primary">Support</p>
                             <h4 class="mt-3 text-2xl font-semibold tracking-tight text-foreground">Stay unstuck faster</h4>
