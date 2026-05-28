@@ -83,7 +83,7 @@
                             </a>
                         </div>
 
-                        <div class="hero-video-stage reveal reveal-delay-4 mt-18 w-full max-w-6xl" data-hero-video-stage>
+                        <div class="hero-video-stage mt-18 w-full max-w-6xl" data-hero-video-stage>
                             <div class="hero-video-shell" data-hero-video-shell>
                                 <div class="hero-video-orb hero-video-orb-left" aria-hidden="true"></div>
                                 <div class="hero-video-orb hero-video-orb-right" aria-hidden="true"></div>

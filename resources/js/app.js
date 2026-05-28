@@ -168,42 +168,6 @@ heroVideoPosterButton?.addEventListener('click', () => {
     startHeroVideo({ muted: false });
 });
 
-if (heroVideoStage && heroVideoShell && !prefersReducedMotion.matches) {
-    let ticking = false;
-
-    const updateHeroVideoZoom = () => {
-        const rect = heroVideoStage.getBoundingClientRect();
-        const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
-        const stageHeight = rect.height || 1;
-        const start = viewportHeight * 0.92;
-        const end = -stageHeight * 0.4;
-        const rawProgress = (start - rect.top) / (start - end);
-        const progress = Math.min(Math.max(rawProgress, 0), 1);
-
-        const maxScale = window.innerWidth < 768 ? 1.08 : window.innerWidth < 1280 ? 1.14 : 1.18;
-        const scale = 1 + ((maxScale - 1) * progress);
-        const offset = progress * -32;
-
-        heroVideoShell.style.setProperty('--hero-video-scale', scale.toFixed(4));
-        heroVideoStage.style.setProperty('--hero-video-offset', `${offset.toFixed(2)}px`);
-        heroVideoStage.classList.toggle('is-zooming', progress > 0.02);
-        ticking = false;
-    };
-
-    const requestHeroVideoZoomUpdate = () => {
-        if (ticking) {
-            return;
-        }
-
-        ticking = true;
-        window.requestAnimationFrame(updateHeroVideoZoom);
-    };
-
-    updateHeroVideoZoom();
-    window.addEventListener('scroll', requestHeroVideoZoomUpdate, { passive: true });
-    window.addEventListener('resize', requestHeroVideoZoomUpdate);
-}
-
 if (heroVideoStage && heroVideoPosterButton && 'IntersectionObserver' in window) {
     let hasAutoStartedHeroVideo = false;
 
