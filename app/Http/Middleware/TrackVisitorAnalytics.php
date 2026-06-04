@@ -16,7 +16,7 @@ class TrackVisitorAnalytics
 {
     private const VISITOR_COOKIE = 'creativequad_visitor';
 
-    private const PAGE_VIEW_DEDUPE_SECONDS = 20;
+    private const PAGE_VIEW_DEDUPE_SECONDS = 120;
 
     private static ?bool $analyticsTablesReady = null;
 
@@ -61,6 +61,10 @@ class TrackVisitorAnalytics
         }
 
         if ($request->ajax() || $request->expectsJson()) {
+            return false;
+        }
+
+        if ($request->user() !== null) {
             return false;
         }
 

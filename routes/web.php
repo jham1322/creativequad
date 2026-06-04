@@ -5,17 +5,21 @@ use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\XenditWebhookController;
+use App\Http\Middleware\TrackVisitorAnalytics;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('dashboard');
+Route::middleware(TrackVisitorAnalytics::class)->group(function (): void {
+    Route::get('/', function () {
+        return view('dashboard');
+    });
+
+    Route::get('/checkout', [CheckoutController::class, 'show'])->name('checkout');
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 });
 
-Route::get('/checkout', [CheckoutController::class, 'show'])->name('checkout');
 Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
 Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
 Route::get('/checkout/failed', [CheckoutController::class, 'failed'])->name('checkout.failed');
-Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.store');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/admin/login', [AdminAuthController::class, 'showLogin'])->name('admin.login');
