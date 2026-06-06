@@ -75,6 +75,12 @@ class XenditWebhookController extends Controller
             ])->save();
         }
 
+        Cache::store('file')->put(
+            'meta-purchase-track-ready:' . $externalId,
+            true,
+            now()->addDay(),
+        );
+
         if ($user instanceof User) {
             $this->cleanupResolvedPendingOrders($user, $externalId);
         } else {

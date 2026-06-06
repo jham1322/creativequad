@@ -58,9 +58,28 @@
         </main>
         <script>
             (() => {
+                const shouldTrackPurchase = @json((bool) ($shouldTrackPurchase ?? false));
+                const purchaseReference = @json((string) ($reference ?? ''));
+                const purchaseStorageKey = `purchaseTracked:${purchaseReference || 'thank-you'}`;
+                const purchaseValue = Number(@json((float) ($purchaseValue ?? 599)));
+                const purchaseCurrency = @json((string) ($purchaseCurrency ?? 'PHP'));
                 const countdown = document.querySelector('[data-thank-you-countdown]');
                 const redirectUrl = @json($redirectUrl);
                 let remaining = Math.max(1, Math.ceil(({{ (int) ($redirectDelayMs ?? 3000) }}) / 1000));
+
+                if (
+                    shouldTrackPurchase &&
+                    ! sessionStorage.getItem(purchaseStorageKey)
+                ) {
+                    if (window.fbq) {
+                        fbq('track', 'Purchase', {
+                            value: purchaseValue,
+                            currency: purchaseCurrency
+                        });
+                        console.log('Meta Purchase Event Fired');
+                        sessionStorage.setItem(purchaseStorageKey, 'true');
+                    }
+                }
 
                 if (!countdown) {
                     return;

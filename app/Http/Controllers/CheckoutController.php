@@ -200,6 +200,18 @@ class CheckoutController extends Controller
             }
         }
 
+        $confirmedOrder = $reference !== ''
+            ? $this->resolveConfirmedOrderForReference($reference)
+            : null;
+
+        $shouldTrackPurchase = $confirmedOrder instanceof Order
+            && $reference !== ''
+            && $this->consumePurchaseTrackingReadyFlag($reference);
+
+        $purchaseValue = $confirmedOrder instanceof Order
+            ? (float) $confirmedOrder->amount
+            : (float) config('services.xendit.course_price', 599);
+
         $request->session()->put('lms_access_granted', true);
         $request->session()->put('lms_access_reference', $reference);
 
@@ -212,6 +224,9 @@ class CheckoutController extends Controller
             'reference' => $reference,
             'redirectUrl' => $redirectUrl,
             'redirectDelayMs' => 3000,
+            'shouldTrackPurchase' => $shouldTrackPurchase,
+            'purchaseValue' => $purchaseValue,
+            'purchaseCurrency' => $confirmedOrder?->currency ?: 'PHP',
         ]);
     }
 
@@ -617,6 +632,8 @@ class CheckoutController extends Controller
             ])->save();
         }
 
+        $this->markPurchaseTrackingReady($externalId);
+
         if ($user instanceof User) {
             $this->cleanupResolvedPendingOrders($user, $externalId);
         } elseif ($resolvedEmail !== '') {
@@ -713,5 +730,40 @@ class CheckoutController extends Controller
                 'deleted_at' => now(),
                 'notes' => 'Automatically cleaned up after payment was completed on another checkout.',
             ]);
+    }
+
+    private function resolveConfirmedOrderForReference(string $reference): ?Order
+    {
+        return Order::query()
+            ->where('xendit_reference', $reference)
+            ->whereIn('status', ['paid', 'approved'])
+            ->where(function ($query): void {
+                $query->whereNotNull('paid_at')
+                    ->orWhereNotNull('approved_at');
+            })
+            ->latest()
+            ->first();
+    }
+
+    private function markPurchaseTrackingReady(string $reference): void
+    {
+        Cache::store('file')->put(
+            $this->purchaseTrackingCacheKey($reference),
+            true,
+            now()->addDay(),
+        );
+    }
+
+    private function consumePurchaseTrackingReadyFlag(string $reference): bool
+    {
+        return (bool) Cache::store('file')->pull(
+            $this->purchaseTrackingCacheKey($reference),
+            false,
+        );
+    }
+
+    private function purchaseTrackingCacheKey(string $reference): string
+    {
+        return 'meta-purchase-track-ready:' . $reference;
     }
 }
