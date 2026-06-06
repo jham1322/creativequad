@@ -3,13 +3,19 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Checkout Success | {{ config('app.name', 'ELMS') }}</title>
+        @include('partials.meta-head', [
+            'title' => 'Checkout Success | Creative Quad Vibe Coding Course',
+            'description' => 'Successful enrollment confirmation for the Creative Quad Vibe Coding Course.',
+            'robots' => 'noindex,nofollow',
+            'canonical' => route('checkout.success'),
+        ])
         <style>html,body{background:#020f18;color:#f4f8ff}</style>
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=dm-sans:400,500,700|inter:400,500,600,700,800" rel="stylesheet" />
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="min-h-screen bg-background font-sans text-foreground antialiased">
+        @include('partials.meta-pixel-noscript')
         <main class="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-6 py-16">
             <div class="pointer-events-none absolute inset-0 page-aura" aria-hidden="true"></div>
 

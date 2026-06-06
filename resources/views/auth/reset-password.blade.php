@@ -14,6 +14,7 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="min-h-screen bg-background font-sans text-foreground antialiased">
+        @include('partials.meta-pixel-noscript')
         <main class="relative min-h-screen overflow-hidden bg-background">
             <div class="pointer-events-none absolute inset-0 page-aura" aria-hidden="true"></div>
             <div class="pointer-events-none absolute inset-0 hero-grid opacity-[0.03]" aria-hidden="true"></div>
