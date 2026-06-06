@@ -83,6 +83,68 @@
                     </article>
                 </section>
 
+                <section class="admin-panel mt-6">
+                    <div class="admin-panel-head">
+                        <div>
+                            <p class="text-sm font-medium uppercase tracking-[0.24em] text-primary">Payment Test Switcher</p>
+                            <h3 class="mt-2 text-2xl font-semibold tracking-tight text-foreground">Change the Xendit charge amount anytime</h3>
+                            <p class="mt-3 max-w-3xl text-sm leading-7 text-muted-foreground">
+                                This only changes the actual amount sent to Xendit for new checkout sessions. It does not change the public landing page price or the checkout page display price.
+                            </p>
+                        </div>
+                    </div>
+
+                    <form method="POST" action="{{ route('admin.payment-price.update') }}" class="admin-enroll-form">
+                        @csrf
+                        <div class="admin-enroll-grid">
+                            <label class="admin-field">
+                                <span>Current public display price</span>
+                                <input type="text" value="₱{{ number_format($displayCoursePrice, 2) }}" class="admin-input" disabled>
+                            </label>
+
+                            <label class="admin-field">
+                                <span>Current Xendit payment price</span>
+                                <input
+                                    type="number"
+                                    name="payment_price"
+                                    value="{{ old('payment_price', number_format($paymentCoursePrice, 2, '.', '')) }}"
+                                    min="1"
+                                    step="0.01"
+                                    placeholder="1.00"
+                                    class="admin-input @if($errors->has('payment_price')) admin-input-error @endif"
+                                    required
+                                >
+                                @error('payment_price')
+                                    <small class="admin-field-error">{{ $message }}</small>
+                                @enderror
+                            </label>
+                        </div>
+
+                        <div class="admin-enroll-actions">
+                            <div class="admin-action-row">
+                                <button type="submit" name="payment_price" value="1" class="admin-action-button admin-action-button-secondary">
+                                    Set ₱1
+                                </button>
+                                <button type="submit" name="payment_price" value="2" class="admin-action-button admin-action-button-secondary">
+                                    Set ₱2
+                                </button>
+                                <button type="submit" name="payment_price" value="599" class="admin-action-button admin-action-button-secondary">
+                                    Restore ₱599
+                                </button>
+                            </div>
+
+                            <div class="flex flex-col items-end gap-3">
+                                <p class="admin-enroll-note">
+                                    Save a custom test amount here, or use the quick buttons for one-click purchase testing.
+                                </p>
+                                <button type="submit" class="admin-action-button admin-action-button-primary">
+                                    Save payment price
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </section>
+
                 <section
                     class="admin-panel mt-6"
                     data-admin-analytics

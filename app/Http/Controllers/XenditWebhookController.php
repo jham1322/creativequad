@@ -6,6 +6,7 @@ use App\Mail\AdminStudentAccessNotification;
 use App\Mail\CoursePaymentConfirmed;
 use App\Models\Order;
 use App\Models\User;
+use App\Support\XenditCoursePricing;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -93,7 +94,7 @@ class XenditWebhookController extends Controller
         Mail::to($email)->send(new CoursePaymentConfirmed([
             'name' => $resolvedName,
             'email' => $email,
-            'amount' => number_format((float) ($payload['paid_amount'] ?? $payload['amount'] ?? config('services.xendit.course_price', 599)), 2),
+            'amount' => number_format((float) ($payload['paid_amount'] ?? $payload['amount'] ?? XenditCoursePricing::paymentPrice()), 2),
             'reference' => $externalId,
             'payment_method' => (string) ($order['payment_method'] ?? strtoupper((string) ($payload['payment_method'] ?? data_get($payload, 'metadata.payment_method', 'Xendit')))),
             'course_name' => 'Build Real Full-Stack Web Apps using AI and Codex',
@@ -103,7 +104,7 @@ class XenditWebhookController extends Controller
         $this->notifyAdminsOfStudentAccess(
             name: $resolvedName,
             email: $email,
-            amount: number_format((float) ($payload['paid_amount'] ?? $payload['amount'] ?? config('services.xendit.course_price', 599)), 2),
+            amount: number_format((float) ($payload['paid_amount'] ?? $payload['amount'] ?? XenditCoursePricing::paymentPrice()), 2),
             reference: $externalId,
             paymentMethod: (string) ($order['payment_method'] ?? strtoupper((string) ($payload['payment_method'] ?? data_get($payload, 'metadata.payment_method', 'Xendit')))),
             dedupeKey: $externalId,

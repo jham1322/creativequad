@@ -8,6 +8,7 @@ use App\Models\AnalyticsPageView;
 use App\Models\AnalyticsVisitor;
 use App\Models\Order;
 use App\Models\User;
+use App\Support\XenditCoursePricing;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -58,6 +59,8 @@ class AdminDashboardController extends Controller
             'students' => User::query()->whereNotNull('purchased_at')->latest('purchased_at')->get(),
             'pendingOrders' => $pendingOrders,
             'analytics' => $this->analyticsSummaryData(),
+            'displayCoursePrice' => XenditCoursePricing::displayPrice(),
+            'paymentCoursePrice' => XenditCoursePricing::paymentPrice(),
         ]);
     }
 
@@ -112,7 +115,7 @@ class AdminDashboardController extends Controller
 
         $temporaryPassword = Str::upper(Str::random(4)) . '-' . Str::random(8);
         $reference = 'manual-enroll-' . Str::uuid();
-        $coursePrice = (float) config('services.xendit.course_price', 599);
+        $coursePrice = XenditCoursePricing::displayPrice();
 
         $user = $existingUser ?? new User();
         $user->forceFill([
@@ -235,6 +238,24 @@ class AdminDashboardController extends Controller
         ])->save();
 
         return back()->with('admin_status', 'Order removed from the pending list. The customer account was kept in the database.');
+    }
+
+    public function updatePaymentPrice(Request $request): RedirectResponse
+    {
+        if ($redirect = $this->ensureAdmin($request)) {
+            return $redirect;
+        }
+
+        $validated = $request->validate([
+            'payment_price' => ['required', 'numeric', 'min:1', 'max:999999'],
+        ]);
+
+        $amount = XenditCoursePricing::setPaymentPrice((float) $validated['payment_price']);
+
+        return back()->with(
+            'admin_status',
+            'Xendit payment test price updated to ₱' . number_format($amount, 2) . '. Public landing and checkout display prices were left unchanged.'
+        );
     }
 
     private function ensureAdmin(Request $request): ?RedirectResponse

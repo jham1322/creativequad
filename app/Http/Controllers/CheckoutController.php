@@ -8,6 +8,7 @@ use App\Mail\CoursePaymentPending;
 use App\Models\Lesson;
 use App\Models\Order;
 use App\Models\User;
+use App\Support\XenditCoursePricing;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -34,7 +35,7 @@ class CheckoutController extends Controller
         }
 
         return view('checkout', [
-            'coursePrice' => number_format((float) config('services.xendit.course_price', 599), 2),
+            'coursePrice' => number_format(XenditCoursePricing::displayPrice(), 2),
             'offlineGcashDetails' => $this->offlineGcashDetails(),
         ]);
     }
@@ -58,7 +59,7 @@ class CheckoutController extends Controller
             'username.unique' => 'Username already exists.',
         ]);
 
-        $price = (float) config('services.xendit.course_price', 599);
+        $price = XenditCoursePricing::paymentPrice();
         $externalId = $validated['payment_method'] === 'offline_gcash'
             ? 'offline-gcash-' . Str::uuid()
             : 'vibe-course-' . Str::uuid();
@@ -210,7 +211,7 @@ class CheckoutController extends Controller
 
         $purchaseValue = $confirmedOrder instanceof Order
             ? (float) $confirmedOrder->amount
-            : (float) config('services.xendit.course_price', 599);
+            : XenditCoursePricing::paymentPrice();
 
         $request->session()->put('lms_access_granted', true);
         $request->session()->put('lms_access_reference', $reference);
@@ -649,7 +650,7 @@ class CheckoutController extends Controller
         Mail::to($resolvedEmail)->send(new CoursePaymentConfirmed([
             'name' => (string) ($order['name'] ?? strtok($resolvedEmail, '@') ?: 'Student'),
             'email' => $resolvedEmail,
-            'amount' => number_format((float) ($invoice['paid_amount'] ?? $invoice['amount'] ?? config('services.xendit.course_price', 599)), 2),
+            'amount' => number_format((float) ($invoice['paid_amount'] ?? $invoice['amount'] ?? XenditCoursePricing::paymentPrice()), 2),
             'reference' => $externalId,
             'payment_method' => (string) ($order['payment_method'] ?? strtoupper((string) ($invoice['payment_method'] ?? 'Xendit'))),
             'course_name' => 'Build Real Full-Stack Web Apps using AI and Codex',
@@ -659,7 +660,7 @@ class CheckoutController extends Controller
         $this->notifyAdminsOfStudentAccess(
             name: (string) ($order['name'] ?? strtok($resolvedEmail, '@') ?: 'Student'),
             email: $resolvedEmail,
-            amount: number_format((float) ($invoice['paid_amount'] ?? $invoice['amount'] ?? config('services.xendit.course_price', 599)), 2),
+            amount: number_format((float) ($invoice['paid_amount'] ?? $invoice['amount'] ?? XenditCoursePricing::paymentPrice()), 2),
             reference: $externalId,
             paymentMethod: (string) ($order['payment_method'] ?? strtoupper((string) ($invoice['payment_method'] ?? 'Xendit'))),
             dedupeKey: $externalId,
