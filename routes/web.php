@@ -15,10 +15,11 @@ Route::middleware(TrackVisitorAnalytics::class)->group(function (): void {
 
     Route::get('/checkout', [CheckoutController::class, 'show'])->name('checkout');
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+    Route::get('/thank-you', [CheckoutController::class, 'success'])->name('checkout.thankyou');
 });
 
 Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
-Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
+Route::get('/checkout/success', [CheckoutController::class, 'legacySuccessRedirect'])->name('checkout.success');
 Route::get('/checkout/failed', [CheckoutController::class, 'failed'])->name('checkout.failed');
 Route::post('/login', [AuthController::class, 'login'])->name('login.store');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

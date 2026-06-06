@@ -171,9 +171,23 @@ class CheckoutController extends Controller
         return redirect()->away($invoiceUrl);
     }
 
-    public function success(Request $request): RedirectResponse
+    public function success(Request $request): View|RedirectResponse
     {
         $reference = $request->string('reference')->value();
+
+        if (! Auth::check() && $reference !== '') {
+            $user = User::query()
+                ->where('xendit_reference', $reference)
+                ->orWhereHas('orders', function ($query) use ($reference): void {
+                    $query->where('xendit_reference', $reference);
+                })
+                ->first();
+
+            if ($user instanceof User) {
+                Auth::login($user);
+                $request->session()->regenerate();
+            }
+        }
 
         if ($reference !== '') {
             try {
@@ -189,10 +203,25 @@ class CheckoutController extends Controller
         $request->session()->put('lms_access_granted', true);
         $request->session()->put('lms_access_reference', $reference);
 
-        return redirect()->to(URL::temporarySignedRoute('lms.dashboard', now()->addHours(2), [
+        $redirectUrl = URL::temporarySignedRoute('lms.dashboard', now()->addHours(2), [
             'reference' => $reference,
             'enrolled' => 1,
-        ]));
+        ]);
+
+        return view('checkout-success', [
+            'reference' => $reference,
+            'redirectUrl' => $redirectUrl,
+            'redirectDelayMs' => 3000,
+        ]);
+    }
+
+    public function legacySuccessRedirect(Request $request): RedirectResponse
+    {
+        $reference = $request->string('reference')->value();
+
+        return redirect()->route('checkout.thankyou', [
+            'reference' => $reference,
+        ]);
     }
 
     public function failed(Request $request): RedirectResponse
@@ -472,7 +501,7 @@ class CheckoutController extends Controller
                 'currency' => 'PHP',
                 'description' => 'Build Real Full Stack Web Apps using AI and Codex',
                 'invoice_duration' => 86400,
-                'success_redirect_url' => route('checkout.success', ['reference' => $payload['external_id']]),
+                'success_redirect_url' => route('checkout.thankyou', ['reference' => $payload['external_id']]),
                 'failure_redirect_url' => route('checkout.failed', ['reference' => $payload['external_id']]),
                 'customer' => [
                     'given_names' => $payload['first_name'],
