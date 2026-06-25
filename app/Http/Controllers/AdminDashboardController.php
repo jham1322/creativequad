@@ -9,6 +9,7 @@ use App\Models\AnalyticsVisitor;
 use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\User;
+use App\Support\CheckoutExitOfferSettings;
 use App\Support\XenditCoursePricing;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -62,6 +63,7 @@ class AdminDashboardController extends Controller
             'analytics' => $this->analyticsSummaryData(),
             'displayCoursePrice' => XenditCoursePricing::displayPrice(),
             'paymentCoursePrice' => XenditCoursePricing::paymentPrice(),
+            'checkoutExitOfferEnabled' => CheckoutExitOfferSettings::enabled(),
             'coupons' => Coupon::query()->latest()->get(),
         ]);
     }
@@ -257,6 +259,24 @@ class AdminDashboardController extends Controller
         return back()->with(
             'admin_status',
             'Xendit payment test price updated to ₱' . number_format($amount, 2) . '. Public landing and checkout display prices were left unchanged.'
+        );
+    }
+
+    public function updateCheckoutExitOffer(Request $request): RedirectResponse
+    {
+        if ($redirect = $this->ensureAdmin($request)) {
+            return $redirect;
+        }
+
+        $enabled = $request->boolean('enabled');
+
+        CheckoutExitOfferSettings::setEnabled($enabled);
+
+        return back()->with(
+            'admin_status',
+            $enabled
+                ? 'Checkout exit coupon pop-up is now enabled.'
+                : 'Checkout exit coupon pop-up is now disabled.'
         );
     }
 

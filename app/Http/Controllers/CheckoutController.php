@@ -9,6 +9,7 @@ use App\Models\Coupon;
 use App\Models\Lesson;
 use App\Models\Order;
 use App\Models\User;
+use App\Support\CheckoutExitOfferSettings;
 use App\Support\XenditCoursePricing;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -46,6 +47,7 @@ class CheckoutController extends Controller
             'couponCode' => $couponCode,
             'couponDiscount' => number_format($discountAmount, 2),
             'couponError' => $couponError,
+            'checkoutExitOfferEnabled' => CheckoutExitOfferSettings::enabled(),
             'offlineGcashDetails' => $this->offlineGcashDetails(),
         ]);
     }

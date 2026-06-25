@@ -29,6 +29,7 @@ Route::post('/admin/logout', [AdminAuthController::class, 'logout'])->name('admi
 Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
 Route::get('/admin/analytics/summary', [AdminDashboardController::class, 'analyticsSummary'])->name('admin.analytics.summary');
 Route::post('/admin/payment-price', [AdminDashboardController::class, 'updatePaymentPrice'])->name('admin.payment-price.update');
+Route::post('/admin/checkout-exit-offer', [AdminDashboardController::class, 'updateCheckoutExitOffer'])->name('admin.checkout-exit-offer.update');
 Route::post('/admin/coupons', [AdminDashboardController::class, 'storeCoupon'])->name('admin.coupons.store');
 Route::delete('/admin/coupons/{coupon}', [AdminDashboardController::class, 'destroyCoupon'])->name('admin.coupons.destroy');
 Route::post('/admin/students/enroll', [AdminDashboardController::class, 'enroll'])->name('admin.students.enroll');

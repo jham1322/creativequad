@@ -86,6 +86,42 @@
                 <section class="admin-panel mt-6">
                     <div class="admin-panel-head">
                         <div>
+                            <p class="text-sm font-medium uppercase tracking-[0.24em] text-primary">Checkout Pop-up</p>
+                            <h3 class="mt-2 text-2xl font-semibold tracking-tight text-foreground">Exit coupon offer</h3>
+                            <p class="mt-3 max-w-3xl text-sm leading-7 text-muted-foreground">
+                                Enable or disable the SAVE200 pop-up that appears when a checkout visitor tries to leave.
+                            </p>
+                        </div>
+                    </div>
+
+                    <form method="POST" action="{{ route('admin.checkout-exit-offer.update') }}" class="admin-enroll-form">
+                        @csrf
+                        <input type="hidden" name="enabled" value="0">
+
+                        <label class="admin-field">
+                            <span>Pop-up status</span>
+                            <select name="enabled" class="admin-input">
+                                <option value="1" @selected($checkoutExitOfferEnabled)>Enabled</option>
+                                <option value="0" @selected(! $checkoutExitOfferEnabled)>Disabled</option>
+                            </select>
+                        </label>
+
+                        <div class="admin-enroll-actions">
+                            <p class="admin-enroll-note">
+                                Current status:
+                                <strong>{{ $checkoutExitOfferEnabled ? 'Enabled' : 'Disabled' }}</strong>.
+                                The coupon itself remains available even when the pop-up is off.
+                            </p>
+                            <button type="submit" class="admin-action-button admin-action-button-primary">
+                                Save pop-up setting
+                            </button>
+                        </div>
+                    </form>
+                </section>
+
+                <section class="admin-panel mt-6">
+                    <div class="admin-panel-head">
+                        <div>
                             <p class="text-sm font-medium uppercase tracking-[0.24em] text-primary">Payment Test Switcher</p>
                             <h3 class="mt-2 text-2xl font-semibold tracking-tight text-foreground">Change the Xendit charge amount anytime</h3>
                             <p class="mt-3 max-w-3xl text-sm leading-7 text-muted-foreground">

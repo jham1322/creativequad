@@ -326,7 +326,7 @@
                 </div>
             </section>
 
-            @unless ($appliedCoupon)
+            @if ($checkoutExitOfferEnabled && ! $appliedCoupon)
                 <div
                     class="checkout-exit-offer"
                     data-checkout-exit-offer
@@ -364,7 +364,7 @@
                         </div>
                     </section>
                 </div>
-            @endunless
+            @endif
         </main>
     </body>
 </html>
