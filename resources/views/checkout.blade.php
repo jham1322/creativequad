@@ -325,6 +325,46 @@
                     </aside>
                 </div>
             </section>
+
+            @unless ($appliedCoupon)
+                <div
+                    class="checkout-exit-offer"
+                    data-checkout-exit-offer
+                    data-apply-url="{{ route('checkout', ['coupon_code' => 'SAVE200']) }}"
+                    data-dismiss-key="creativequad-save200-dismissed"
+                    aria-hidden="true"
+                >
+                    <div class="checkout-exit-backdrop" data-checkout-exit-dismiss></div>
+                    <section
+                        class="checkout-exit-card"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="checkout-exit-title"
+                        aria-describedby="checkout-exit-copy"
+                    >
+                        <button type="button" class="checkout-exit-close" data-checkout-exit-dismiss aria-label="Close discount offer">
+                            ×
+                        </button>
+                        <p class="checkout-exit-kicker">Wait, sayang yung discount</p>
+                        <h2 id="checkout-exit-title">Get ₱200 off before you go</h2>
+                        <p id="checkout-exit-copy">
+                            Use coupon code <strong>SAVE200</strong> today and bring your enrollment down to <strong>₱399</strong>.
+                        </p>
+                        <div class="checkout-exit-code" aria-label="Coupon code SAVE200">
+                            <span>SAVE200</span>
+                            <small>₱200 discount</small>
+                        </div>
+                        <div class="checkout-exit-actions">
+                            <button type="button" class="checkout-exit-apply" data-checkout-exit-apply>
+                                Apply coupon
+                            </button>
+                            <button type="button" class="checkout-exit-secondary" data-checkout-exit-dismiss>
+                                No thanks, continue
+                            </button>
+                        </div>
+                    </section>
+                </div>
+            @endunless
         </main>
     </body>
 </html>

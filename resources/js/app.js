@@ -254,6 +254,85 @@ passwordToggles.forEach((toggle) => {
     });
 });
 
+const checkoutExitOffer = document.querySelector('[data-checkout-exit-offer]');
+
+if (checkoutExitOffer instanceof HTMLElement) {
+    const dismissKey = checkoutExitOffer.dataset.dismissKey || 'creativequad-checkout-offer-dismissed';
+    const applyUrl = checkoutExitOffer.dataset.applyUrl || window.location.href;
+    const dismissButtons = checkoutExitOffer.querySelectorAll('[data-checkout-exit-dismiss]');
+    const applyButton = checkoutExitOffer.querySelector('[data-checkout-exit-apply]');
+    const checkoutForm = document.querySelector('form[action*="checkout"]');
+    let hasShownOffer = window.sessionStorage.getItem(dismissKey) === '1';
+    let isLeavingBySubmit = false;
+
+    const showCheckoutOffer = () => {
+        if (hasShownOffer) {
+            return false;
+        }
+
+        hasShownOffer = true;
+        checkoutExitOffer.classList.add('is-visible');
+        checkoutExitOffer.setAttribute('aria-hidden', 'false');
+        window.history.pushState({ checkoutOfferOpen: true }, '', window.location.href);
+
+        return true;
+    };
+
+    const hideCheckoutOffer = () => {
+        checkoutExitOffer.classList.remove('is-visible');
+        checkoutExitOffer.setAttribute('aria-hidden', 'true');
+    };
+
+    checkoutForm?.addEventListener('submit', () => {
+        isLeavingBySubmit = true;
+    });
+
+    dismissButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+            window.sessionStorage.setItem(dismissKey, '1');
+            hideCheckoutOffer();
+        });
+    });
+
+    applyButton?.addEventListener('click', () => {
+        window.sessionStorage.setItem(dismissKey, '1');
+        window.location.assign(applyUrl);
+    });
+
+    window.history.replaceState({ checkoutPage: true }, '', window.location.href);
+    window.history.pushState({ checkoutGuard: true }, '', window.location.href);
+
+    window.addEventListener('popstate', () => {
+        if (showCheckoutOffer()) {
+            return;
+        }
+
+        window.history.back();
+    });
+
+    document.addEventListener('mouseout', (event) => {
+        if (event.clientY <= 8 && !event.relatedTarget) {
+            showCheckoutOffer();
+        }
+    });
+
+    window.addEventListener('beforeunload', (event) => {
+        if (hasShownOffer || isLeavingBySubmit) {
+            return;
+        }
+
+        event.preventDefault();
+        event.returnValue = '';
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && checkoutExitOffer.classList.contains('is-visible')) {
+            window.sessionStorage.setItem(dismissKey, '1');
+            hideCheckoutOffer();
+        }
+    });
+}
+
 if (adminAnalyticsRoot instanceof HTMLElement) {
     const analyticsEndpoint = adminAnalyticsRoot.dataset.analyticsEndpoint;
     const updatedAtEl = adminAnalyticsRoot.querySelector('[data-analytics-updated-at]');
