@@ -2745,6 +2745,13 @@
     color: rgba(255, 183, 183, 0.96);
 }
 
+.checkout-field-success {
+    margin-top: -0.15rem;
+    font-size: 0.82rem;
+    line-height: 1.45;
+    color: rgba(159, 255, 205, 0.95);
+}
+
 .checkout-password-wrap {
     position: relative;
 }
@@ -3003,6 +3010,35 @@
     transform: translateY(-2px);
     box-shadow: 0 40px 80px -36px rgba(168, 85, 247, 0.92);
     filter: saturate(1.08);
+}
+
+.checkout-coupon-form {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 1.4rem;
+}
+
+.checkout-coupon-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.75rem;
+}
+
+.checkout-coupon-button {
+    border: 1px solid rgba(214, 74, 196, 0.42);
+    border-radius: 999px;
+    background: rgba(216, 75, 186, 0.16);
+    color: var(--foreground);
+    cursor: pointer;
+    font-size: 0.86rem;
+    font-weight: 800;
+    padding: 0 1.15rem;
+    transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+}
+
+.checkout-coupon-button:hover {
+    background: rgba(216, 75, 186, 0.28);
+    border-color: rgba(255, 91, 177, 0.7);
+    transform: translateY(-1px);
 }
 
 .checkout-order-row {

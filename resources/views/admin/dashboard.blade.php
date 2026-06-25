@@ -145,6 +145,105 @@
                     </form>
                 </section>
 
+                <section class="admin-panel mt-6">
+                    <div class="admin-panel-head">
+                        <div>
+                            <p class="text-sm font-medium uppercase tracking-[0.24em] text-primary">Coupon Codes</p>
+                            <h3 class="mt-2 text-2xl font-semibold tracking-tight text-foreground">Create checkout discounts</h3>
+                            <p class="mt-3 max-w-3xl text-sm leading-7 text-muted-foreground">
+                                Add a coupon code and peso discount amount. When a student applies it on checkout, the discounted total is sent to Xendit.
+                            </p>
+                        </div>
+                    </div>
+
+                    @if ($errors->has('coupon'))
+                        <div class="mt-5 rounded-[1.25rem] border border-red-400/22 bg-red-500/10 px-5 py-4 text-sm leading-7 text-red-100">
+                            {{ $errors->first('coupon') }}
+                        </div>
+                    @endif
+
+                    <form method="POST" action="{{ route('admin.coupons.store') }}" class="admin-enroll-form">
+                        @csrf
+                        <div class="admin-enroll-grid">
+                            <label class="admin-field">
+                                <span>Coupon code</span>
+                                <input
+                                    type="text"
+                                    name="code"
+                                    value="{{ old('code') }}"
+                                    placeholder="VIBE100"
+                                    class="admin-input @if($errors->has('code')) admin-input-error @endif"
+                                    required
+                                >
+                                @error('code')
+                                    <small class="admin-field-error">{{ $message }}</small>
+                                @enderror
+                            </label>
+
+                            <label class="admin-field">
+                                <span>Discount amount</span>
+                                <input
+                                    type="number"
+                                    name="discount_amount"
+                                    value="{{ old('discount_amount') }}"
+                                    min="1"
+                                    step="0.01"
+                                    placeholder="100.00"
+                                    class="admin-input @if($errors->has('discount_amount')) admin-input-error @endif"
+                                    required
+                                >
+                                @error('discount_amount')
+                                    <small class="admin-field-error">{{ $message }}</small>
+                                @enderror
+                            </label>
+                        </div>
+
+                        <div class="admin-enroll-actions">
+                            <p class="admin-enroll-note">
+                                Discount is capped so checkout can never go below ₱1.
+                            </p>
+                            <button type="submit" class="admin-action-button admin-action-button-primary">
+                                Create coupon
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="admin-table-wrap mt-6">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Discount</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse ($coupons as $coupon)
+                                    <tr>
+                                        <td>{{ $coupon->code }}</td>
+                                        <td>₱{{ number_format((float) $coupon->discount_amount, 2) }}</td>
+                                        <td><span class="admin-status-pill">Active</span></td>
+                                        <td>{{ optional($coupon->created_at)->format('M d, Y') }}</td>
+                                        <td>
+                                            <form method="POST" action="{{ route('admin.coupons.destroy', $coupon) }}">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="admin-action-button admin-action-button-danger">Delete</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="5" class="admin-empty-state">No coupon codes created yet.</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
                 <section
                     class="admin-panel mt-6"
                     data-admin-analytics

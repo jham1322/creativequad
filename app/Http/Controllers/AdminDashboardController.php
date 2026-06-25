@@ -6,6 +6,7 @@ use App\Mail\AdminManualEnrollmentCredentials;
 use App\Mail\AdminStudentAccessNotification;
 use App\Models\AnalyticsPageView;
 use App\Models\AnalyticsVisitor;
+use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\User;
 use App\Support\XenditCoursePricing;
@@ -61,6 +62,7 @@ class AdminDashboardController extends Controller
             'analytics' => $this->analyticsSummaryData(),
             'displayCoursePrice' => XenditCoursePricing::displayPrice(),
             'paymentCoursePrice' => XenditCoursePricing::paymentPrice(),
+            'coupons' => Coupon::query()->latest()->get(),
         ]);
     }
 
@@ -256,6 +258,48 @@ class AdminDashboardController extends Controller
             'admin_status',
             'Xendit payment test price updated to ₱' . number_format($amount, 2) . '. Public landing and checkout display prices were left unchanged.'
         );
+    }
+
+    public function storeCoupon(Request $request): RedirectResponse
+    {
+        if ($redirect = $this->ensureAdmin($request)) {
+            return $redirect;
+        }
+
+        $validated = $request->validate([
+            'code' => ['required', 'string', 'max:60'],
+            'discount_amount' => ['required', 'numeric', 'min:1', 'max:999999'],
+        ]);
+
+        $code = Coupon::normalizeCode($validated['code']);
+
+        if (Coupon::query()->where('code', $code)->exists()) {
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'coupon' => 'That coupon code already exists.',
+                ]);
+        }
+
+        Coupon::query()->create([
+            'code' => $code,
+            'discount_amount' => round((float) $validated['discount_amount'], 2),
+            'is_active' => true,
+        ]);
+
+        return back()->with('admin_status', 'Coupon ' . $code . ' created successfully.');
+    }
+
+    public function destroyCoupon(Request $request, Coupon $coupon): RedirectResponse
+    {
+        if ($redirect = $this->ensureAdmin($request)) {
+            return $redirect;
+        }
+
+        $code = $coupon->code;
+        $coupon->delete();
+
+        return back()->with('admin_status', 'Coupon ' . $code . ' removed.');
     }
 
     private function ensureAdmin(Request $request): ?RedirectResponse

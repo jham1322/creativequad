@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Mail\AdminStudentAccessNotification;
 use App\Mail\CoursePaymentConfirmed;
 use App\Mail\CoursePaymentPending;
+use App\Models\Coupon;
 use App\Models\Lesson;
 use App\Models\Order;
 use App\Models\User;
@@ -34,8 +35,17 @@ class CheckoutController extends Controller
                 ->with('pending_payment_notice', 'Please complete your pending payment to unlock your course access.');
         }
 
+        $basePrice = XenditCoursePricing::paymentPrice();
+        $couponCode = $request->string('coupon_code')->value();
+        [$coupon, $discountAmount, $finalPrice, $couponError] = $this->resolveCouponPricing($couponCode, $basePrice);
+
         return view('checkout', [
-            'coursePrice' => number_format(XenditCoursePricing::displayPrice(), 2),
+            'coursePrice' => number_format($basePrice, 2),
+            'finalCoursePrice' => number_format($finalPrice, 2),
+            'appliedCoupon' => $coupon,
+            'couponCode' => $couponCode,
+            'couponDiscount' => number_format($discountAmount, 2),
+            'couponError' => $couponError,
             'offlineGcashDetails' => $this->offlineGcashDetails(),
         ]);
     }
@@ -54,12 +64,23 @@ class CheckoutController extends Controller
             ],
             'password' => ['required', 'string', 'min:8', 'max:255'],
             'payment_method' => ['required', 'string', 'in:maya,grabpay,qrph,offline_gcash'],
+            'coupon_code' => ['nullable', 'string', 'max:60'],
         ], [
             'email.unique' => 'Email already exists.',
             'username.unique' => 'Username already exists.',
         ]);
 
-        $price = XenditCoursePricing::paymentPrice();
+        $basePrice = XenditCoursePricing::paymentPrice();
+        [$coupon, $discountAmount, $price, $couponError] = $this->resolveCouponPricing((string) ($validated['coupon_code'] ?? ''), $basePrice);
+
+        if ($couponError !== null) {
+            return back()
+                ->withInput($request->except('password'))
+                ->withErrors([
+                    'coupon_code' => $couponError,
+                ]);
+        }
+
         $externalId = $validated['payment_method'] === 'offline_gcash'
             ? 'offline-gcash-' . Str::uuid()
             : 'vibe-course-' . Str::uuid();
@@ -84,6 +105,8 @@ class CheckoutController extends Controller
                 'last_name' => $validated['last_name'],
                 'email' => $validated['email'],
                 'username' => $validated['username'],
+                'coupon_code' => $coupon?->code,
+                'discount_amount' => $discountAmount,
             ]);
 
             if ($response->failed() || ! $response->json('invoice_url')) {
@@ -114,9 +137,12 @@ class CheckoutController extends Controller
 
         $order = Order::query()->create([
             'user_id' => $user->id,
+            'coupon_id' => $coupon?->id,
             'course_slug' => 'build-real-full-stack-web-apps-using-ai-and-codex',
             'course_name' => 'Build Real Full-Stack Web Apps using AI and Codex',
             'amount' => $price,
+            'coupon_code' => $coupon?->code,
+            'discount_amount' => $discountAmount,
             'currency' => 'PHP',
             'status' => 'pending',
             'payment_method' => strtoupper($validated['payment_method']),
@@ -139,6 +165,8 @@ class CheckoutController extends Controller
             'email' => $validated['email'],
             'username' => $validated['username'],
             'payment_method' => strtoupper($validated['payment_method']),
+            'coupon_code' => $coupon?->code,
+            'discount_amount' => $discountAmount,
         ], now()->addDays(30));
 
         if ($validated['payment_method'] !== 'offline_gcash') {
@@ -537,8 +565,32 @@ class CheckoutController extends Controller
                 'metadata' => [
                     'username' => $payload['username'],
                     'payment_method' => $payload['payment_method'],
+                    'coupon_code' => $payload['coupon_code'] ?? null,
+                    'discount_amount' => $payload['discount_amount'] ?? 0,
                 ],
             ]);
+    }
+
+    private function resolveCouponPricing(string $code, float $basePrice): array
+    {
+        $normalizedCode = Coupon::normalizeCode($code);
+
+        if ($normalizedCode === '') {
+            return [null, 0.00, $basePrice, null];
+        }
+
+        $coupon = Coupon::query()
+            ->where('code', $normalizedCode)
+            ->where('is_active', true)
+            ->first();
+
+        if (! $coupon instanceof Coupon) {
+            return [null, 0.00, $basePrice, 'Coupon code is invalid or inactive.'];
+        }
+
+        $discountAmount = $coupon->discountFor($basePrice);
+
+        return [$coupon, $discountAmount, max(1, round($basePrice - $discountAmount, 2)), null];
     }
 
     private function paymentMethodMap(): array

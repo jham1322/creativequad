@@ -12,9 +12,12 @@ class Order extends Model
 
     protected $fillable = [
         'user_id',
+        'coupon_id',
         'course_slug',
         'course_name',
         'amount',
+        'coupon_code',
+        'discount_amount',
         'currency',
         'status',
         'payment_method',
@@ -35,6 +38,7 @@ class Order extends Model
     {
         return [
             'amount' => 'decimal:2',
+            'discount_amount' => 'decimal:2',
             'paid_at' => 'datetime',
             'approved_at' => 'datetime',
             'deleted_at' => 'datetime',
@@ -44,6 +48,11 @@ class Order extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function coupon(): BelongsTo
+    {
+        return $this->belongsTo(Coupon::class);
     }
 
     public function getDisplayNameAttribute(): string

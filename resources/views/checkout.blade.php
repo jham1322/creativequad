@@ -102,6 +102,9 @@
 
                         <form method="POST" action="{{ route('checkout.store') }}" class="mt-8 space-y-8">
                             @csrf
+                            @if ($couponCode !== '')
+                                <input type="hidden" name="coupon_code" value="{{ $couponCode }}">
+                            @endif
                             <div class="grid gap-5 sm:grid-cols-2">
                                 <label class="checkout-field">
                                     <span>First name</span>
@@ -236,6 +239,9 @@
                                 <p class="text-sm leading-7 text-muted-foreground">
                                     Your personal data will be used to process your order, support your experience, and create your account access for the course. This checkout now creates a hosted payment session through Xendit on the Laravel backend, so your secret key never touches the browser.
                                 </p>
+                                @error('coupon_code')
+                                    <small class="checkout-field-error mt-3 block">{{ $message }}</small>
+                                @enderror
                             </div>
 
                             <button type="submit" class="checkout-submit">
@@ -263,11 +269,39 @@
                                     <span class="font-semibold text-foreground">₱{{ $coursePrice }}</span>
                                 </div>
 
+                                @if ($appliedCoupon)
+                                    <div class="checkout-order-row">
+                                        <span class="text-muted-foreground">Coupon {{ $appliedCoupon->code }}</span>
+                                        <span class="font-semibold text-primary">-₱{{ $couponDiscount }}</span>
+                                    </div>
+                                @endif
+
                                 <div class="checkout-order-row checkout-order-total">
                                     <span>Total</span>
-                                    <span>₱{{ $coursePrice }}</span>
+                                    <span>₱{{ $finalCoursePrice }}</span>
                                 </div>
                             </div>
+
+                            <form method="GET" action="{{ route('checkout') }}" class="checkout-coupon-form mt-6">
+                                <label class="checkout-field">
+                                    <span>Coupon code</span>
+                                    <div class="checkout-coupon-row">
+                                        <input
+                                            type="text"
+                                            name="coupon_code"
+                                            value="{{ $couponCode }}"
+                                            placeholder="Enter coupon"
+                                            @class(['checkout-input-error' => $couponError])
+                                        >
+                                        <button type="submit" class="checkout-coupon-button">Apply</button>
+                                    </div>
+                                    @if ($couponError)
+                                        <small class="checkout-field-error">{{ $couponError }}</small>
+                                    @elseif ($appliedCoupon)
+                                        <small class="checkout-field-success">Coupon applied. Your Xendit payment total is now ₱{{ $finalCoursePrice }}.</small>
+                                    @endif
+                                </label>
+                            </form>
 
                         </section>
 
