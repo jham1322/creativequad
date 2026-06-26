@@ -177,6 +177,12 @@
                                             <p class="mt-2 text-sm leading-7 text-muted-foreground">
                                                 {{ $lesson->description }}
                                             </p>
+                                            @if (str_contains($lesson->title, 'Common Student Mistakes'))
+                                                <div class="lms-important-lesson-badge">
+                                                    <span>Important, don’t skip</span>
+                                                    <small>Skipping this can cause lots of errors later.</small>
+                                                </div>
+                                            @endif
                                         </div>
                                         <div class="lms-lesson-meta">
                                             <span class="{{ $lesson->status_badge_class }}">{{ $lesson->status_label }}</span>
